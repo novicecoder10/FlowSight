@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPFIXMon Security Compliance & Audit Readiness</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/theme.js"></script>
+</head>
+<body>
+  <main class="shell">
+        <header class="topbar">
+      <div class="brand-wrapper">
+        <div class="brand"><span class="brand-mark">IPM</span></div>
+        <div class="brand-title-box">
+          <span class="brand-name">IPFIXMon</span>
+          <span class="sec-badge">Enterprise SOC</span>
+        </div>
+      </div>
+
+      <nav class="mega-nav" aria-label="Main Navigation">
+        <!-- Overview -->
+        <div class="nav-dropdown">
+          <a class="dropdown-btn link-only " href="/">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Overview</span>
+          </a>
+        </div>
+
+        <!-- Dashboards -->
+        <div class="nav-dropdown">
+          <button type="button" class="dropdown-btn ">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboards</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item " href="/matrix.html"><span class="item-title">Flow Matrix & Sankey <span class="hot-tag">NEW</span></span><span class="item-desc">Multi-stage flow ribbons & matrix</span></a>
+            <a class="dropdown-item " href="/l7.html"><span class="item-title">L7 Details</span><span class="item-desc">Deep packet inspection mix</span></a>
+            <a class="dropdown-item " href="/applications.html"><span class="item-title">Applications</span><span class="item-desc">Application protocol breakdown</span></a>
+          </div>
+        </div>
+
+        <!-- Security Operations -->
+        <div class="nav-dropdown">
+          <button type="button" class="dropdown-btn incidents-nav-btn active-category">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Security & SOC</span>
+            <span class="hot-tag">SOC</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item " href="/incidents.html"><span class="item-title">Notable Incidents <span class="hot-tag">NEW</span></span><span class="item-desc">Alert Review & Triage Workflows</span></a>
+            <a class="dropdown-item active" href="/compliance.html"><span class="item-title">Compliance <span class="hot-tag">NEW</span></span><span class="item-desc">PCI-DSS / NIST / SOC2 Frameworks</span></a>
+            <a class="dropdown-item " href="/mitre.html"><span class="item-title">MITRE ATT&CK Matrix <span class="hot-tag">NEW</span></span><span class="item-desc">Adversary Tactics & Threat Hunting</span></a>
+            <a class="dropdown-item " href="/alerts.html"><span class="item-title">SOAR & Alert Rules <span class="hot-tag">NEW</span></span><span class="item-desc">Automated Response & Playbooks</span></a>
+            <a class="dropdown-item " href="/threats.html"><span class="item-title">Threat Intelligence</span><span class="item-desc">Real-time C2 & IOC matches</span></a>
+            <a class="dropdown-item " href="/ddos.html"><span class="item-title">DDoS Defense</span><span class="item-desc">Flood attack & anomaly detection</span></a>
+            <a class="dropdown-item " href="/vpn.html"><span class="item-title">VPN Detection</span><span class="item-desc">Tunnel & proxy traffic detection</span></a>
+            <a class="dropdown-item " href="/ueba.html"><span class="item-title">UEBA Analytics <span class="hot-tag">NEW</span></span><span class="item-desc">Behavior & anomaly detection</span></a>
+          </div>
+        </div>
+
+        <!-- Network Intel -->
+        <div class="nav-dropdown">
+          <button type="button" class="dropdown-btn ">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>Network Intel</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item " href="/geoip.html"><span class="item-title">GeoIP Map</span><span class="item-desc">Geographic flow distribution</span></a>
+            <a class="dropdown-item " href="/dns.html"><span class="item-title">DNS Traffic</span><span class="item-desc">Domain queries & resolution stats</span></a>
+            <a class="dropdown-item " href="/asn.html"><span class="item-title">ASN / BGP</span><span class="item-desc">Network provider & ISP routing</span></a>
+            <a class="dropdown-item " href="/globe.html"><span class="item-title">3D Globe</span><span class="item-desc">Interactive 3D spatial traffic globe</span></a>
+          </div>
+        </div>
+
+        <!-- Forensics Search -->
+        <div class="nav-dropdown">
+          <a class="dropdown-btn link-only " href="/forensics.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span>Forensics</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="live-status"><span id="status-dot" class="status-dot"></span><span id="live-label">Connecting</span></div>
+      <button id="theme-toggle" aria-label="Toggle theme"></button>
+    </header>
+
+    <section class="intro compact-intro">
+      <div>
+        <p class="eyebrow">AUDIT & GOVERNANCE</p>
+        <h1>Compliance & Audit Readiness</h1>
+        <p class="lede">Continuous security control evaluation, regulatory health scoring (PCI-DSS 4.0, ISO 27001, NIST 800-53, CIS Controls v8), log retention governance & executive report generation</p>
+      </div>
+
+      <div class="compliance-actions-bar">
+        <button type="button" id="btn-export-html" class="btn-primary-action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Export Executive Audit Report (HTML)
+        </button>
+        <button type="button" id="btn-export-csv" class="btn-secondary-action">Export CSV Findings</button>
+      </div>
+    </section>
+
+    <!-- Metrics Summary Bar -->
+    <section class="metrics-grid">
+      <article class="metric">
+        <span>OVERALL HEALTH SCORE</span>
+        <strong id="metric-overall-score" class="stat-green">0%</strong>
+        <small id="metric-passed-summary">0 / 0 Controls Passing</small>
+      </article>
+
+      <article class="metric">
+        <span>PCI-DSS 4.0 SCORE</span>
+        <strong id="metric-pci-score">0%</strong>
+        <small>Payment Card Industry Standard</small>
+      </article>
+
+      <article class="metric">
+        <span>ISO 27001:2022 SCORE</span>
+        <strong id="metric-iso-score">0%</strong>
+        <small>Information Security Mgmt</small>
+      </article>
+
+      <article class="metric">
+        <span>NIST SP 800-53 SCORE</span>
+        <strong id="metric-nist-score">0%</strong>
+        <small>Federal Security Catalog</small>
+      </article>
+    </section>
+
+    <!-- Framework Score Cards & Compliance Score History Grid -->
+    <div class="compliance-overview-grid">
+      <!-- Framework Score Breakdown Cards -->
+      <section class="panel panel-padded">
+        <div class="panel-header">
+          <div>
+            <h2>Regulatory Framework Health</h2>
+            <p class="panel-subtitle">Current readiness scores by standard</p>
+          </div>
+        </div>
+
+        <div class="framework-cards-container">
+          <div class="fw-card">
+            <div class="fw-card-header">
+              <span class="fw-name">PCI-DSS 4.0</span>
+              <span id="fw-pci-badge" class="fw-badge">0%</span>
+            </div>
+            <div class="fw-progress-track"><div id="fw-pci-bar" class="fw-progress-fill" style="width:0%;"></div></div>
+            <small class="fw-desc">Req 4.1 (TLS), Req 10.1 (Log Gen), Req 10.5 (90-Day Retention)</small>
+          </div>
+
+          <div class="fw-card">
+            <div class="fw-card-header">
+              <span class="fw-name">ISO/IEC 27001:2022</span>
+              <span id="fw-iso-badge" class="fw-badge">0%</span>
+            </div>
+            <div class="fw-progress-track"><div id="fw-iso-bar" class="fw-progress-fill" style="width:0%;"></div></div>
+            <small class="fw-desc">Control A.8.16 (Monitoring), Control A.8.8 (Threat Intel Sync)</small>
+          </div>
+
+          <div class="fw-card">
+            <div class="fw-card-header">
+              <span class="fw-name">NIST SP 800-53 Rev 5</span>
+              <span id="fw-nist-badge" class="fw-badge">0%</span>
+            </div>
+            <div class="fw-progress-track"><div id="fw-nist-bar" class="fw-progress-fill" style="width:0%;"></div></div>
+            <small class="fw-desc">AU-6 (Audit Record Review), SC-7 (Boundary SOAR Response)</small>
+          </div>
+
+          <div class="fw-card">
+            <div class="fw-card-header">
+              <span class="fw-name">CIS Controls v8</span>
+              <span id="fw-cis-badge" class="fw-badge">0%</span>
+            </div>
+            <div class="fw-progress-track"><div id="fw-cis-bar" class="fw-progress-fill" style="width:0%;"></div></div>
+            <small class="fw-desc">Control 13.1 (Volumetric DDoS), Control 8 (Audit Trail Management)</small>
+          </div>
+        </div>
+      </section>
+
+      <!-- Score History Trend Chart Panel -->
+      <section class="panel panel-padded">
+        <div class="panel-header">
+          <div>
+            <h2>Compliance Health Score History</h2>
+            <p class="panel-subtitle">7-day audit compliance trendline</p>
+          </div>
+        </div>
+        <div class="chart-box" style="height:210px;position:relative;">
+          <canvas id="compliance-chart" height="210"></canvas>
+        </div>
+      </section>
+    </div>
+
+    <!-- Control Audit Findings Table Panel -->
+    <section class="panel panel-padded" style="margin-top:20px;">
+      <div class="panel-header" style="flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2>Control Audit Findings & Evidence Audit Log</h2>
+          <p class="panel-subtitle">Live evaluation of security controls. Click any row for evidence details & remediation.</p>
+        </div>
+
+        <div class="filter-controls">
+          <select id="filter-framework" class="form-select">
+            <option value="ALL">All Frameworks</option>
+            <option value="PCI-DSS">PCI-DSS 4.0</option>
+            <option value="ISO 27001">ISO 27001:2022</option>
+            <option value="NIST">NIST SP 800-53</option>
+            <option value="CIS">CIS Controls v8</option>
+          </select>
+
+          <select id="filter-status" class="form-select">
+            <option value="ALL">All Statuses</option>
+            <option value="PASS">PASS</option>
+            <option value="WARNING">WARNING</option>
+            <option value="FAIL">FAIL</option>
+          </select>
+
+          <input type="search" id="compliance-search" class="form-search" placeholder="Search control title or ID...">
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="compliance-table" class="data-table">
+          <thead>
+            <tr>
+              <th style="width:140px;">Control ID</th>
+              <th style="width:140px;">Framework</th>
+              <th>Control Title & Requirement</th>
+              <th style="width:130px;">Category</th>
+              <th style="width:90px;">Status</th>
+              <th style="width:70px;">Score</th>
+              <th>Evidence Summary</th>
+              <th style="text-align:right;width:100px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="8" class="empty-cell">Evaluating security compliance controls...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Governance & Log Retention Manager Panel -->
+    <section class="panel panel-padded" style="margin-top:20px;">
+      <div class="panel-header">
+        <div>
+          <h2>Data Retention & Compliance Governance Policy Manager</h2>
+          <p class="panel-subtitle">Configure operational log retention windows and automated compliance purge policies</p>
+        </div>
+      </div>
+
+      <form id="retention-form" class="retention-form-grid">
+        <div class="form-group">
+          <label for="retention-days-select">Audit Log Retention Policy Window</label>
+          <select id="retention-days-select" class="form-input">
+            <option value="30">30 Days (Non-compliant for PCI-DSS)</option>
+            <option value="90" selected>90 Days (PCI-DSS 10.5.1 Minimum Standard)</option>
+            <option value="180">180 Days (Corporate Best Practice)</option>
+            <option value="365">365 Days (Full Fiscal Year Audit Trail)</option>
+          </select>
+          <small class="form-help">PCI-DSS 4.0 Requirement 10.5.1 mandates a minimum of 90 days active retention.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="min-tls-select">Minimum Cryptographic TLS Standard</label>
+          <select id="min-tls-select" class="form-input" disabled>
+            <option value="TLSv1.2" selected>TLS 1.2 (PCI-DSS Mandate)</option>
+            <option value="TLSv1.3">TLS 1.3 (High Security)</option>
+          </select>
+          <small class="form-help">Legacy SSLv3, TLS 1.0, and TLS 1.1 are automatically flagged as non-compliant.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="auto-purge-check">Automated Log Maintenance & Purge</label>
+          <div class="toggle-switch-wrap">
+            <input type="checkbox" id="auto-purge-check" checked>
+            <span class="toggle-label">Automatically purge telemetry records older than retention window</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary-action">Save Governance Policy</button>
+          <span id="retention-msg" class="save-msg" style="display:none;">Settings saved successfully!</span>
+        </div>
+      </form>
+    </section>
+
+    <!-- Control Evidence Detail Drawer / Modal -->
+    <div id="compliance-drawer" class="technique-drawer-backdrop" style="display:none;">
+      <div class="technique-drawer">
+        <div class="drawer-header">
+          <div>
+            <span id="drawer-control-id" class="drawer-tech-badge">PCI-DSS-10.5</span>
+            <h3 id="drawer-control-title">Audit Log Retention Policy Enforcement</h3>
+            <span id="drawer-control-framework" class="drawer-tactic-tag">PCI-DSS 4.0</span>
+          </div>
+          <button type="button" id="compliance-drawer-close" class="drawer-close">&times;</button>
+        </div>
+
+        <div class="drawer-body">
+          <div class="drawer-section">
+            <h4>Regulatory Requirement Reference</h4>
+            <p id="drawer-control-ref" class="drawer-text">—</p>
+          </div>
+
+          <div class="drawer-section">
+            <h4>Control Objective Description</h4>
+            <p id="drawer-control-desc" class="drawer-text">—</p>
+          </div>
+
+          <div class="drawer-section">
+            <h4>Current Automated Evidence Audit Trail</h4>
+            <div id="drawer-control-evidence" class="code-box">—</div>
+          </div>
+
+          <div class="drawer-section">
+            <h4>Recommended Remediation Action Plan</h4>
+            <div id="drawer-control-remediation" class="remediation-box">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/compliance.js"></script>
+</body>
+</html>

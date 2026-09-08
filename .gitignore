@@ -1,0 +1,22 @@
+node_modules/
+dist/
+
+# Large GeoIP database, downloaded separately (CC BY 4.0)
+data/*.mmdb
+
+# Runtime databases
+data/flowgen.sqlite*
+data/ipfixmon.sqlite*
+
+# Compiled sniffer artefacts
+cpp-sniffer/*.o
+cpp-sniffer/packet_sniffer
+cpp-sniffer/build/
+
+# Editor / assistant rules kept out of the repo
+.github/instructions/codacy.instructions.md
+
+# Local assistant context, not part of the project
+CLAUDE.md
+AGENTS.md
+.claude/

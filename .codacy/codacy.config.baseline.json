@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "metadata": {
+    "source": "auto",
+    "provider": null,
+    "organization": null,
+    "repositoryId": null,
+    "repositoryName": null,
+    "createdAt": "2026-09-05T13:20:35.180Z",
+    "updatedAt": "2026-09-05T13:20:35.180Z",
+    "languages": []
+  },
+  "tools": [],
+  "exclude": []
+}

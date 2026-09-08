@@ -1,0 +1,29 @@
+{
+  "name": "ipfixmon",
+  "version": "1.1.0",
+  "description": "IPFIXMon network traffic flow monitoring dashboard.",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "test": "bash tests/run.sh"
+  },
+  "keywords": [
+    "flow",
+    "generator",
+    "typescript"
+  ],
+  "author": "Your Name",
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.4.1",
+    "typescript": "^5.9.2"
+  }
+}

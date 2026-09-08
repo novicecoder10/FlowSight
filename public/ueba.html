@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IPFIXMon UEBA & Anomaly Analytics</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/theme.js"></script>
+</head>
+<body>
+  <main class="shell">
+        <header class="topbar">
+      <div class="brand-wrapper">
+        <div class="brand"><span class="brand-mark">IPM</span></div>
+        <div class="brand-title-box">
+          <span class="brand-name">IPFIXMon</span>
+          <span class="sec-badge">Enterprise SOC</span>
+        </div>
+      </div>
+
+      <nav class="mega-nav" aria-label="Main Navigation">
+        <!-- Overview -->
+        <div class="nav-dropdown">
+          <a class="dropdown-btn link-only " href="/">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Overview</span>
+          </a>
+        </div>
+
+        <!-- Dashboards -->
+        <div class="nav-dropdown">
+          <button type="button" class="dropdown-btn ">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboards</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item " href="/matrix.html"><span class="item-title">Flow Matrix & Sankey <span class="hot-tag">NEW</span></span><span class="item-desc">Multi-stage flow ribbons & matrix</span></a>
+            <a class="dropdown-item " href="/l7.html"><span class="item-title">L7 Details</span><span class="item-desc">Deep packet inspection mix</span></a>
+            <a class="dropdown-item " href="/applications.html"><span class="item-title">Applications</span><span class="item-desc">Application protocol breakdown</span></a>
+          </div>
+        </div>
+
+        <!-- Security Operations -->
+        <div class="nav-dropdown">
+          <button type="button" class="dropdown-btn incidents-nav-btn active-category">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span>Security & SOC</span>
+            <span class="hot-tag">SOC</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item " href="/incidents.html"><span class="item-title">Notable Incidents <span class="hot-tag">NEW</span></span><span class="item-desc">Alert Review & Triage Workflows</span></a>
+            <a class="dropdown-item " href="/compliance.html"><span class="item-title">Compliance <span class="hot-tag">NEW</span></span><span class="item-desc">PCI-DSS / NIST / SOC2 Frameworks</span></a>
+            <a class="dropdown-item " href="/mitre.html"><span class="item-title">MITRE ATT&CK Matrix <span class="hot-tag">NEW</span></span><span class="item-desc">Adversary Tactics & Threat Hunting</span></a>
+            <a class="dropdown-item " href="/alerts.html"><span class="item-title">SOAR & Alert Rules <span class="hot-tag">NEW</span></span><span class="item-desc">Automated Response & Playbooks</span></a>
+            <a class="dropdown-item " href="/threats.html"><span class="item-title">Threat Intelligence</span><span class="item-desc">Real-time C2 & IOC matches</span></a>
+            <a class="dropdown-item " href="/ddos.html"><span class="item-title">DDoS Defense</span><span class="item-desc">Flood attack & anomaly detection</span></a>
+            <a class="dropdown-item " href="/vpn.html"><span class="item-title">VPN Detection</span><span class="item-desc">Tunnel & proxy traffic detection</span></a>
+            <a class="dropdown-item active" href="/ueba.html"><span class="item-title">UEBA Analytics <span class="hot-tag">NEW</span></span><span class="item-desc">Behavior & anomaly detection</span></a>
+          </div>
+        </div>
+
+        <!-- Network Intel -->
+        <div class="nav-dropdown">
+          <button type="button" class="dropdown-btn ">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span>Network Intel</span>
+            <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item " href="/geoip.html"><span class="item-title">GeoIP Map</span><span class="item-desc">Geographic flow distribution</span></a>
+            <a class="dropdown-item " href="/dns.html"><span class="item-title">DNS Traffic</span><span class="item-desc">Domain queries & resolution stats</span></a>
+            <a class="dropdown-item " href="/asn.html"><span class="item-title">ASN / BGP</span><span class="item-desc">Network provider & ISP routing</span></a>
+            <a class="dropdown-item " href="/globe.html"><span class="item-title">3D Globe</span><span class="item-desc">Interactive 3D spatial traffic globe</span></a>
+          </div>
+        </div>
+
+        <!-- Forensics Search -->
+        <div class="nav-dropdown">
+          <a class="dropdown-btn link-only " href="/forensics.html">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <span>Forensics</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="live-status"><span id="status-dot" class="status-dot"></span><span id="live-label">Connecting</span></div>
+      <button id="theme-toggle" aria-label="Toggle theme"></button>
+    </header>
+
+    <section class="hero-strip">
+      <div class="hero-left">
+        <p class="eyebrow">BEHAVIORAL ANALYTICS</p>
+        <h1>UEBA & Anomaly Engine</h1>
+        <p class="lede">User & Entity Behavior Analytics: Real-time detection of Port Scans, Z-Score Bandwidth Spikes, C2 Beaconing, and Protocol Mismatches.</p>
+      </div>
+    </section>
+
+    <!-- Metrics Bar -->
+    <section class="metrics-grid">
+      <article class="metric">
+        <span class="metric-label">TOTAL ANOMALIES</span>
+        <strong id="metric-total-anomalies">0</strong>
+        <small>detected events</small>
+      </article>
+      <article class="metric threat-accent">
+        <span class="metric-label">HIGHEST RISK ENTITY</span>
+        <strong id="metric-top-entity">—</strong>
+        <small id="metric-top-score">Risk Score: 0/100</small>
+      </article>
+      <article class="metric">
+        <span class="metric-label">RECON & PORT SCANS</span>
+        <strong id="metric-scan-count">0</strong>
+        <small>scanning hosts</small>
+      </article>
+      <article class="metric">
+        <span class="metric-label">C2 BEACONING DETECTED</span>
+        <strong id="metric-c2-count">0</strong>
+        <small>periodic heartbeats</small>
+      </article>
+    </section>
+
+    <!-- Main Content Layout -->
+    <div class="ueba-grid">
+      <!-- Left Column: Live Anomaly Stream -->
+      <section class="panel ueba-feed-panel">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">REAL-TIME STREAM</p>
+            <h2>Behavioral Anomaly Feed</h2>
+          </div>
+          <div class="type-filter-buttons">
+            <button class="filter-btn active" data-type="all">All</button>
+            <button class="filter-btn" data-type="port_scan">Port Scans</button>
+            <button class="filter-btn" data-type="bandwidth_spike">Bandwidth Spikes</button>
+            <button class="filter-btn" data-type="c2_beacon">C2 Beacons</button>
+            <button class="filter-btn" data-type="port_mismatch">Port Mismatches</button>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="ueba-log-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Severity</th>
+                <th>Anomaly Type</th>
+                <th>Source IP</th>
+                <th>Target IP</th>
+                <th>Risk Score</th>
+                <th>Detection Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="7" class="empty-state">Listening for behavioral network anomalies...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Right Column: Host Scoreboard & Distribution Chart -->
+      <div class="ueba-side-column">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">RISK SCOREBOARD</p>
+              <h2>Top Risky Entities (24h)</h2>
+            </div>
+          </div>
+          <div id="ueba-entities-list" class="entities-list-box">
+            <p class="empty-state">No anomalous entities detected yet</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">MODEL BREAKDOWN</p>
+              <h2>Anomaly Distribution</h2>
+            </div>
+          </div>
+          <div class="canvas-box" style="padding:12px 0;">
+            <canvas id="ueba-dist-chart" height="200"></canvas>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="/ueba.js"></script>
+</body>
+</html>
