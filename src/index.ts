@@ -5,6 +5,7 @@ import { mkdirSync } from 'fs';
 import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
 import crypto from 'crypto';
+import { createRollup, PACKET_RETENTION_HOURS, ROLLUP_INTERVAL_MIN } from './rollup';
 
 type Packet = {
     id: number;
@@ -90,6 +91,35 @@ database.exec(`
     CREATE INDEX IF NOT EXISTS idx_packets_obs_src_dst ON packets(observed_at, source, destination, bytes);
     CREATE INDEX IF NOT EXISTS packets_protocol_idx ON packets(protocol);
     CREATE INDEX IF NOT EXISTS packets_dst_port_idx ON packets(destination_port);
+    CREATE TABLE IF NOT EXISTS flows (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        bucket TEXT NOT NULL,
+        first_seen TEXT NOT NULL,
+        last_seen TEXT NOT NULL,
+        source TEXT NOT NULL,
+        destination TEXT NOT NULL,
+        protocol TEXT NOT NULL,
+        source_port INTEGER NOT NULL,
+        destination_port INTEGER NOT NULL,
+        packets INTEGER NOT NULL,
+        bytes INTEGER NOT NULL,
+        metadata_json TEXT NOT NULL,
+        UNIQUE(bucket, source, destination, protocol, source_port, destination_port)
+    );
+    CREATE INDEX IF NOT EXISTS flows_last_seen_idx ON flows(last_seen DESC);
+    CREATE INDEX IF NOT EXISTS flows_source_idx ON flows(source);
+    CREATE INDEX IF NOT EXISTS flows_destination_idx ON flows(destination);
+    CREATE INDEX IF NOT EXISTS flows_bucket_idx ON flows(bucket);
+    CREATE INDEX IF NOT EXISTS flows_dst_port_idx ON flows(destination_port);
+    CREATE TABLE IF NOT EXISTS rollup_state (
+        id INTEGER PRIMARY KEY DEFAULT 1,
+        last_run TEXT,
+        last_packets_in INTEGER NOT NULL DEFAULT 0,
+        last_flows_out INTEGER NOT NULL DEFAULT 0,
+        total_packets_rolled INTEGER NOT NULL DEFAULT 0,
+        last_purge TEXT,
+        last_purge_removed INTEGER NOT NULL DEFAULT 0
+    );
     CREATE TABLE IF NOT EXISTS saved_searches (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
@@ -249,6 +279,7 @@ database.exec(`
         failed_controls INTEGER NOT NULL
     );
 `);
+database.exec(`INSERT OR IGNORE INTO rollup_state (id) VALUES (1)`);
 database.exec(`INSERT OR IGNORE INTO compliance_settings (id, retention_days, auto_purge, min_tls_version, updated_at) VALUES (1, 90, 1, 'TLSv1.2', datetime('now'))`);
 
 const insertPacket = database.prepare('INSERT INTO packets (observed_at, source, destination, protocol, source_port, destination_port, bytes, metadata) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
@@ -266,6 +297,8 @@ const upsertBlocklistIP = database.prepare(`INSERT INTO soar_blocklist (ip, firs
 const selectBlocklistIPs = database.prepare('SELECT ip FROM soar_blocklist');
 const insertIncident = database.prepare('INSERT INTO incidents (created_at, updated_at, title, description, severity, status, assigned_to, category, source_ip, destination_ip, related_event_ids, notes_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 const updateIncidentStatus = database.prepare('UPDATE incidents SET status = ?, severity = ?, assigned_to = ?, updated_at = ?, notes_json = ? WHERE id = ?');
+
+const rollup = createRollup(database);
 
 // ── Incident Management Engine ──
 type IncidentNote = {
@@ -2275,6 +2308,30 @@ function getComplianceSettings() {
 function evaluateComplianceStatus(): ComplianceStatusResponse {
     const settings = getComplianceSettings();
 
+    // Retention is only satisfied if the purge has actually run and no record older
+    // than the policy survives. Reporting PASS from a stored setting alone would
+    // certify a policy that has never deleted anything.
+    const rollupState = rollup.state() as any;
+    const oldestFlow = (database.prepare('SELECT MIN(first_seen) AS oldest FROM flows').get() as any)?.oldest;
+    const retentionEnforced = (() => {
+        const days = settings.retention_days;
+        if (days < 90) {
+            return { status: 'FAIL' as const, score: 0, evidence: `Retention configured for ${days} days, below the 90-day PCI-DSS minimum.`, remediation: 'Increase retention to at least 90 days in Governance & Retention settings.' };
+        }
+        if (!settings.auto_purge) {
+            return { status: 'FAIL' as const, score: 40, evidence: `Retention configured for ${days} days but automatic purging is disabled, so the policy is not enforced.`, remediation: 'Enable auto-purge so the configured retention policy is applied.' };
+        }
+        if (!rollupState?.last_purge) {
+            return { status: 'FAIL' as const, score: 50, evidence: `Retention configured for ${days} days but no purge has run yet, so enforcement is unverified.`, remediation: 'Allow the retention job to complete at least one cycle.' };
+        }
+        const cutoff = new Date(Date.now() - days * 86400_000).toISOString();
+        if (oldestFlow && oldestFlow < cutoff) {
+            return { status: 'FAIL' as const, score: 60, evidence: `Records older than the ${days}-day policy are still present (oldest ${oldestFlow}).`, remediation: 'Investigate why the retention job is not removing expired records.' };
+        }
+        return { status: 'PASS' as const, score: 100, evidence: `Retention enforced at ${days} days. Last purge ${rollupState.last_purge} removed ${rollupState.last_purge_removed} expired records; oldest retained record ${oldestFlow || 'none'}.`, remediation: 'No action required.' };
+    })();
+
+
     const totalPackets = (database.prepare('SELECT id FROM packets ORDER BY id DESC LIMIT 1').get() as any)?.id || 0;
     const totalThreatEntries = (database.prepare('SELECT COALESCE(SUM(entry_count), 0) as total FROM threat_feeds').get() as any)?.total || 0;
     const uebaAnomaliesCount = (database.prepare('SELECT COUNT(*) as cnt FROM ueba_anomalies').get() as any)?.cnt || 0;
@@ -2303,10 +2360,12 @@ function evaluateComplianceStatus(): ComplianceStatusResponse {
             framework: 'PCI-DSS 4.0',
             requirement_ref: 'Req 10.5.1',
             description: 'Retain audit trail history for at least 90 days with immediate availability for operational investigation.',
-            status: settings.retention_days >= 90 ? 'PASS' : 'FAIL',
-            score: settings.retention_days >= 90 ? 100 : 0,
-            evidence: `Current audit log retention policy configured for ${settings.retention_days} days (PCI-DSS minimum required is 90 days).`,
-            remediation: 'Increase active log retention policy to 90 days or 365 days in Governance & Retention settings.',
+            // Asserts observed behaviour, not the configured number. A policy that is
+            // configured but never enforced is a finding, not a pass.
+            status: retentionEnforced.status,
+            score: retentionEnforced.score,
+            evidence: retentionEnforced.evidence,
+            remediation: retentionEnforced.remediation,
             category: 'Log Governance',
         },
         {
@@ -2747,26 +2806,27 @@ app.get('/api/forensics/search', (req, res) => {
 
         const { whereClauses, params } = parseForensicsQuery(queryStr);
 
-        let candidateRows: any[] = [];
-        let totalMatched = 0;
-        if (whereClauses.length > 0) {
-            const whereSql = `WHERE ${whereClauses.join(' AND ')}`;
-            // Filter across the full table. The previous form wrapped an inner
-            // "ORDER BY id DESC LIMIT 10000" subquery, so any packet older than the
-            // most recent 10k rows was invisible to search and reported as no match.
-            const countRow = database.prepare(`SELECT COUNT(*) AS total FROM packets ${whereSql}`).get(...params) as { total: number };
-            totalMatched = countRow.total;
-            candidateRows = database.prepare(`
-                SELECT * FROM packets
-                ${whereSql}
-                ORDER BY id DESC
-                LIMIT ? OFFSET ?
-            `).all(...params, limit, offset);
-        } else {
-            const countRow = database.prepare('SELECT COUNT(*) AS total FROM packets').get() as { total: number };
-            totalMatched = countRow.total;
-            candidateRows = database.prepare('SELECT * FROM packets ORDER BY id DESC LIMIT ? OFFSET ?').all(limit, offset);
-        }
+        // Search spans both storage tiers so the packet/flow boundary is invisible.
+        // Both sides are projected into the same column shape and carry a `tier` marker;
+        // flows also carry the number of packets they represent.
+        const PACKET_TIER = `SELECT id, observed_at, source, destination, protocol, source_port, destination_port, bytes, metadata, 1 AS packets, 'packet' AS tier FROM packets`;
+        const FLOW_TIER = `SELECT id, last_seen AS observed_at, source, destination, protocol, source_port, destination_port, bytes, metadata_json AS metadata, packets, 'flow' AS tier FROM flows`;
+
+        const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+        const packetSql = `SELECT * FROM (${PACKET_TIER}) ${whereSql}`;
+        const flowSql = `SELECT * FROM (${FLOW_TIER}) ${whereSql}`;
+
+        const packetCount = (database.prepare(`SELECT COUNT(*) AS total FROM (${packetSql})`).get(...params) as { total: number }).total;
+        const flowCount = (database.prepare(`SELECT COUNT(*) AS total FROM (${flowSql})`).get(...params) as { total: number }).total;
+        const totalMatched = packetCount + flowCount;
+
+        const candidateRows = database.prepare(`
+            ${packetSql}
+            UNION ALL
+            ${flowSql}
+            ORDER BY observed_at DESC
+            LIMIT ? OFFSET ?
+        `).all(...params, ...params, limit, offset) as any[];
 
         const totalMatches = totalMatched;
         const results = candidateRows;
@@ -2780,20 +2840,24 @@ app.get('/api/forensics/search', (req, res) => {
         // Breakdowns describe the whole result set, not just the page being returned,
         // so they are computed from a separate bounded sample of the matches.
         const AGGREGATE_SAMPLE_LIMIT = 5000;
-        const aggregateRows = whereClauses.length > 0
-            ? database.prepare(`SELECT source, destination, protocol, destination_port, observed_at FROM packets WHERE ${whereClauses.join(' AND ')} ORDER BY id DESC LIMIT ?`).all(...params, AGGREGATE_SAMPLE_LIMIT)
-            : database.prepare('SELECT source, destination, protocol, destination_port, observed_at FROM packets ORDER BY id DESC LIMIT ?').all(AGGREGATE_SAMPLE_LIMIT);
+        const aggregateRows = database.prepare(`
+            SELECT source, destination, protocol, destination_port, observed_at, packets FROM (${packetSql})
+            UNION ALL
+            SELECT source, destination, protocol, destination_port, observed_at, packets FROM (${flowSql})
+            ORDER BY observed_at DESC LIMIT ?
+        `).all(...params, ...params, AGGREGATE_SAMPLE_LIMIT);
 
         for (const p of aggregateRows as any[]) {
-            if (p.source) sourceMap.set(p.source, (sourceMap.get(p.source) || 0) + 1);
-            if (p.destination) destMap.set(p.destination, (destMap.get(p.destination) || 0) + 1);
-            if (p.protocol) protoMap.set(p.protocol, (protoMap.get(p.protocol) || 0) + 1);
+            const weight = Number(p.packets) || 1;
+            if (p.source) sourceMap.set(p.source, (sourceMap.get(p.source) || 0) + weight);
+            if (p.destination) destMap.set(p.destination, (destMap.get(p.destination) || 0) + weight);
+            if (p.protocol) protoMap.set(p.protocol, (protoMap.get(p.protocol) || 0) + weight);
             if (p.destination_port !== undefined && p.destination_port !== null) {
-                portMap.set(p.destination_port, (portMap.get(p.destination_port) || 0) + 1);
+                portMap.set(p.destination_port, (portMap.get(p.destination_port) || 0) + weight);
             }
             if (p.observed_at) {
                 const tStr = String(p.observed_at).substring(0, 16).replace('T', ' ');
-                timeBucketMap.set(tStr, (timeBucketMap.get(tStr) || 0) + 1);
+                timeBucketMap.set(tStr, (timeBucketMap.get(tStr) || 0) + weight);
             }
         }
 
@@ -2823,6 +2887,26 @@ app.get('/api/forensics/search', (req, res) => {
         console.error('Forensics search error:', err);
         res.status(500).json({ error: `Search failed: ${err.message}` });
     }
+});
+
+app.get('/api/flows/stats', (_req, res) => {
+    const state = rollup.state() as any;
+    const flows = database.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(packets),0) AS p, COALESCE(SUM(bytes),0) AS b, MIN(first_seen) AS oldest FROM flows').get() as any;
+    const packets = database.prepare('SELECT COUNT(*) AS c, MIN(observed_at) AS oldest FROM packets').get() as any;
+    const pageCount = (database.prepare('PRAGMA page_count').get() as any).page_count;
+    const pageSize = (database.prepare('PRAGMA page_size').get() as any).page_size;
+    res.json({
+        packet_tier: { rows: packets.c, oldest: packets.oldest, retention_hours: PACKET_RETENTION_HOURS },
+        flow_tier: { rows: flows.c, packets_represented: flows.p, bytes: flows.b, oldest: flows.oldest },
+        compression_ratio: flows.c > 0 ? Number((flows.p / flows.c).toFixed(1)) : 0,
+        database_bytes: pageCount * pageSize,
+        last_run: state?.last_run || null,
+        last_packets_in: state?.last_packets_in || 0,
+        last_flows_out: state?.last_flows_out || 0,
+        total_packets_rolled: state?.total_packets_rolled || 0,
+        last_purge: state?.last_purge || null,
+        last_purge_removed: state?.last_purge_removed || 0,
+    });
 });
 
 app.get('/api/forensics/saved', (_req, res) => {
@@ -2993,8 +3077,12 @@ app.get('/api/flows/sankey', (req, res) => {
 
     const data = getCachedOrFetch(cacheKey, 2000, () => {
         const rows = database.prepare(`
-            SELECT source, destination, protocol, metadata, SUM(bytes) as bytes, COUNT(*) as packets
-            FROM (SELECT * FROM packets ORDER BY id DESC LIMIT 5000)
+            SELECT source, destination, protocol, metadata, SUM(bytes) as bytes, SUM(packets) as packets
+            FROM (
+                SELECT source, destination, protocol, metadata, bytes, 1 AS packets FROM packets
+                UNION ALL
+                SELECT source, destination, protocol, metadata_json AS metadata, bytes, packets FROM flows
+            )
             GROUP BY source, destination, protocol, metadata
             ORDER BY bytes DESC
         `).all() as Array<{ source: string; destination: string; protocol: string; metadata: string; bytes: number; packets: number }>;
@@ -3074,8 +3162,12 @@ app.get('/api/flows/matrix', (req, res) => {
 
     const data = getCachedOrFetch(cacheKey, 3000, () => {
         const rows = database.prepare(`
-            SELECT source as src, destination as dst, SUM(bytes) as bytes, COUNT(*) as packets, MAX(protocol) as protocol, MAX(metadata) as metadata
-            FROM (SELECT * FROM packets ORDER BY id DESC LIMIT 5000)
+            SELECT source as src, destination as dst, SUM(bytes) as bytes, SUM(packets) as packets, MAX(protocol) as protocol, MAX(metadata) as metadata
+            FROM (
+                SELECT source, destination, protocol, metadata, bytes, 1 AS packets FROM packets
+                UNION ALL
+                SELECT source, destination, protocol, metadata_json AS metadata, bytes, packets FROM flows
+            )
             GROUP BY source, destination
             ORDER BY bytes DESC
         `).all() as Array<{ src: string; dst: string; bytes: number; packets: number; protocol: string; metadata: string }>;
@@ -3160,6 +3252,22 @@ app.listen(port, host, async () => {
     // Load threat intelligence feeds
     await refreshThreatFeeds();
     setInterval(refreshThreatFeeds, 30 * 60 * 1000);
+
+    // Roll aged packets into flows and enforce flow retention. Runs shortly after
+    // startup so a long-stopped instance reclaims space without waiting a full interval.
+    const rollupTick = () => {
+        try {
+            const result = rollup.runRollup();
+            const purged = rollup.purgeExpiredFlows();
+            if (result.packetsIn > 0 || purged > 0) {
+                console.log(`IPFIXMon rollup: ${result.packetsIn} packets -> ${result.flowsOut} flows, ${purged} expired flows purged`);
+            }
+        } catch (error) {
+            console.error('IPFIXMon rollup failed:', (error as Error).message);
+        }
+    };
+    setTimeout(rollupTick, 30_000);
+    setInterval(rollupTick, ROLLUP_INTERVAL_MIN * 60_000);
 
     // 1-second DDoS sliding window tick
     setInterval(() => {

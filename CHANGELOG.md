@@ -3,6 +3,41 @@
 All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-09-09
+
+### Added
+
+- **Flow aggregation with tiered retention.** Packets are kept for a short window
+  (`PACKET_RETENTION_HOURS`, default 6) for the live tail and deep forensics, then rolled
+  up into hourly-bucketed 5-tuple flow records for long retention. Measured on a 3.3M
+  packet capture: 802 MB to 16 MB, 55x fewer rows, byte and packet totals preserved
+  exactly. Roll-up is a periodic SQL job in `src/rollup.ts`, so the packet hot path is
+  unchanged; it is transactional and idempotent, and never deletes a packet whose bytes
+  are not already counted in a flow.
+- Hourly bucketing preserves the time dimension that histograms and trend views need.
+- Flow metadata keeps the distinct values seen (capped, with the cap marked rather than
+  applied silently), so searching history for an SNI still resolves after the packets
+  carrying it are gone.
+- `/api/flows/stats` reports roll-up health: rows per tier, compression ratio, last run,
+  last purge and database size. A stalled roll-up is otherwise indistinguishable from
+  quiet traffic.
+
+### Changed
+
+- Forensics search spans both storage tiers via `UNION ALL`, so the packet/flow boundary
+  is invisible. Results carry a `tier` marker and the packet count each row represents,
+  and field breakdowns are weighted by that count.
+- Sankey and traffic-matrix views read aggregated flows instead of grouping over the
+  newest 5,000 packets, removing both the cost and the silent cap.
+
+### Fixed
+
+- **Retention is now enforced, not merely recorded.** `auto_purge` deletes expired flows
+  using `compliance_settings.retention_days`. The PCI-DSS 10.5 control was reporting PASS
+  whenever the configured number was at least 90, regardless of whether anything was ever
+  deleted; it now asserts observed behaviour — last purge time, records removed, oldest
+  surviving record — and reports FAIL when the policy is configured but not running.
+
 ## [1.1.1] - 2026-09-08
 
 ### Added

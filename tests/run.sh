@@ -8,6 +8,10 @@ echo "== frontend render escaping =="
 node tests/xss-render.test.js || fail=1
 
 echo
+echo "== flow roll-up =="
+node tests/rollup.test.js || fail=1
+
+echo
 echo "== packet parser =="
 BIN=$(mktemp -d)/sniffer_test
 if g++ -std=c++17 -O1 -o "$BIN" tests/sniffer_test.cpp -lpcap -lssl -lcrypto -pthread 2>/dev/null; then
