@@ -3,6 +3,14 @@
 All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-09-08
+
+### Added
+
+- `scripts/run-node.sh` — `npm start` and `npm run build` select a Node >= 22.5 runtime
+  themselves rather than depending on the invoking shell, and report the requirement
+  plainly when none is available.
+
 ## [1.1.0] - 2026-09-08
 
 Security and correctness release. Several issues below allowed traffic on a monitored

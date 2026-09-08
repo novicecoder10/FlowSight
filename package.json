@@ -1,11 +1,11 @@
 {
   "name": "ipfixmon",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "IPFIXMon network traffic flow monitoring dashboard.",
   "main": "src/index.ts",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run build && node dist/index.js",
+    "build": "./scripts/run-node.sh ./node_modules/typescript/bin/tsc",
+    "start": "npm run build && ./scripts/run-node.sh dist/index.js",
     "test": "bash tests/run.sh"
   },
   "keywords": [

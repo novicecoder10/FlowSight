@@ -16,20 +16,23 @@ cpp-sniffer/packet_sniffer  --stdout-->  src/index.ts  --SSE-->  public/*.js
 
 | Dependency | Why | Install |
 |---|---|---|
-| Node.js >= 22.5 | `node:sqlite` is used for persistence | `nvm use` (reads `.nvmrc`) |
+| Node.js >= 22.5 | `node:sqlite` is used for persistence | `nvm install 22` (selected automatically at start) |
 | `libpcap-dev`, `libssl-dev` | building the sniffer | `sudo apt install libpcap-dev libssl-dev` |
 | `libmaxminddb-bin` | GeoIP lookups (`mmdblookup`) | `sudo apt install libmaxminddb-bin` |
 
-On Node 20 and earlier the server exits immediately with
-`ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite`.
+If no suitable runtime can be found, `npm start` says so plainly instead of failing
+with `ERR_UNKNOWN_BUILTIN_MODULE: No such built-in module: node:sqlite`, which reads
+like a missing package rather than a version problem.
 
 ## Quick start
 
 ```sh
 npm install
-nvm use
 npm start
 ```
+
+`npm start` selects a Node >= 22.5 runtime itself (via `nvm` if the shell's default is
+older), so no `nvm use` step is required.
 
 The dashboard binds `127.0.0.1:5900` by default. Override with `PORT` and `HOST`.
 
@@ -70,6 +73,8 @@ Start the dashboard as a normal user, never under `sudo`:
 npm start
 SNIFFER_DEVICE=enp6s0 npm start    # capture one interface instead of `any`
 ```
+
+`scripts/`  holds the runtime selector used by the `build` and `start` scripts.
 
 ## Tests
 
