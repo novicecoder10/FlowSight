@@ -1,7 +1,7 @@
 {
-  "name": "ipfixmon",
-  "version": "1.2.0",
-  "description": "IPFIXMon network traffic flow monitoring dashboard.",
+  "name": "flowsight",
+  "version": "1.3.0",
+  "description": "Real-time network flow monitoring: a libpcap packet sniffer feeding a live threat-detection dashboard, with tiered packet/flow storage in SQLite.",
   "main": "src/index.ts",
   "scripts": {
     "build": "./scripts/run-node.sh ./node_modules/typescript/bin/tsc",
@@ -9,15 +9,40 @@
     "test": "bash tests/run.sh"
   },
   "keywords": [
-    "flow",
-    "generator",
-    "typescript"
+    "network-monitoring",
+    "packet-capture",
+    "libpcap",
+    "netflow",
+    "ipfix",
+    "flow-analysis",
+    "network-security",
+    "intrusion-detection",
+    "ddos-detection",
+    "threat-intelligence",
+    "ueba",
+    "soar",
+    "mitre-attack",
+    "sqlite",
+    "typescript",
+    "dashboard",
+    "sse"
   ],
-  "author": "Your Name",
-  "license": "ISC",
+  "author": "Gautam Karat",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/novicecoder10/FlowSight.git"
+  },
+  "bugs": {
+    "url": "https://github.com/novicecoder10/FlowSight/issues"
+  },
+  "homepage": "https://github.com/novicecoder10/FlowSight#readme",
   "engines": {
     "node": ">=22.5.0"
   },
+  "os": [
+    "linux"
+  ],
   "dependencies": {
     "express": "^5.2.1"
   },

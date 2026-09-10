@@ -1,4 +1,8 @@
-# IPFIXMon
+# FlowSight
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.5-brightgreen.svg)](https://nodejs.org)
+[![Platform](https://img.shields.io/badge/platform-linux-lightgrey.svg)](#requirements)
 
 Real-time network flow monitoring and visualisation. A C++ libpcap sniffer feeds a
 TypeScript/Express server over a line-oriented pipe; the server persists to SQLite,
@@ -12,6 +16,19 @@ cpp-sniffer/packet_sniffer  --stdout-->  src/index.ts  --SSE-->  public/*.js
                                     SQLite: packets (recent)
                                             flows   (aggregated)
 ```
+
+![FlowSight overview dashboard](docs/images/dashboard.png)
+
+<sub>The overview page under `DISABLE_SNIFFER=1`. The capture badge reads idle because no
+sniffer process is attached — the packets are from the built-in synthetic generator.</sub>
+
+## Dashboard
+
+Seventeen pages, all served statically with no build step: overview, alerts, incidents,
+threat intelligence, DDoS, UEBA, VPN/proxy detection, MITRE ATT&CK coverage, compliance,
+forensics search, application and L7 breakdowns, DNS, ASN, GeoIP and a traffic matrix,
+plus a 3D globe. Each subscribes to `/api/stream` for live packets and polls its own REST
+endpoints for the rest.
 
 ## Storage tiers
 
@@ -100,18 +117,18 @@ transport headers, oversized fields, IPv6 port extraction).
 
 ## Security notes
 
-IPFIXMon renders data that arrives from the network, so the threat model includes the
+FlowSight renders data that arrives from the network, so the threat model includes the
 traffic it monitors.
 
 - **Bind address.** Defaults to loopback. Exposing the dashboard on `0.0.0.0` publishes
   your full packet-capture history; set `HOST` deliberately.
-- **Authentication.** Set `IPFIXMON_TOKEN` to require `Authorization: Bearer <token>`
+- **Authentication.** Set `FLOWSIGHT_TOKEN` to require `Authorization: Bearer <token>`
   (or `?token=`) on every request. Unset means no authentication.
 - **Webhooks.** SOAR webhook URLs are operator-supplied and dispatched from this host.
   Private, loopback and link-local destinations are refused unless
   `SOAR_ALLOW_PRIVATE_WEBHOOKS=1` is set.
 - **Blocklist export.** `/api/soar/export-blocklist` emits iptables/ipset/Cisco rules.
-  IPFIXMon records shunned addresses but never modifies your firewall — applying the
+  FlowSight records shunned addresses but never modifies your firewall — applying the
   export is a deliberate operator step.
 - **ASN enrichment.** `/api/asn` forwards observed addresses to RIPEstat, a third party.
 
@@ -121,11 +138,11 @@ traffic it monitors.
 |---|---|---|
 | `PORT` | `5900` | Dashboard HTTP port |
 | `HOST` | `127.0.0.1` | Bind address |
-| `IPFIXMON_TOKEN` | — | Enables bearer-token auth when set |
+| `FLOWSIGHT_TOKEN` | — | Enables bearer-token auth when set |
 | `DISABLE_SNIFFER` | — | `1` swaps capture for the synthetic generator |
 | `SNIFFER_BIN` | `cpp-sniffer/packet_sniffer` | Sniffer binary path |
 | `SNIFFER_DEVICE` | `any` | Interface to capture |
-| `IPFIXMON_DB` | `data/ipfixmon.sqlite` | SQLite database path |
+| `FLOWSIGHT_DB` | `data/flowsight.sqlite` | SQLite database path (falls back to `data/ipfixmon.sqlite` if that file exists, from before the rename) |
 | `GEOIP_MMDB` | `data/dbip-city-lite.mmdb` | MaxMind-format GeoIP database |
 | `SOAR_WEBHOOK_TIMEOUT_MS` | `5000` | Webhook dispatch timeout |
 | `SOAR_ALLOW_PRIVATE_WEBHOOKS` | — | `1` permits RFC1918/loopback webhook targets |

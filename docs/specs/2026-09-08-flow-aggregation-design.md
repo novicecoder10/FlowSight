@@ -2,7 +2,7 @@
 
 ## Problem
 
-IPFIXMon stores one row per packet. Measured on a live capture:
+FlowSight stores one row per packet. Measured on a live capture:
 
 ```
 681 MB · 2,565,386 rows over 2.1h  =>  ~1.2M rows/hour (~7.6 GB/day)

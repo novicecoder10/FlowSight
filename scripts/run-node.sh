@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# IPFIXMon needs Node >= 22.5 for node:sqlite. The failure mode on an older runtime is
+# FlowSight needs Node >= 22.5 for node:sqlite. The failure mode on an older runtime is
 # ERR_UNKNOWN_BUILTIN_MODULE, which reads like a missing package rather than a version
 # problem, so select a suitable runtime here instead of relying on the caller's shell.
 set -euo pipefail
@@ -42,7 +42,7 @@ fi
 
 current="$(node -p 'process.versions.node' 2>/dev/null || echo 'not found')"
 cat >&2 <<MSG
-IPFIXMon requires Node >= ${REQUIRED_MAJOR}.${REQUIRED_MINOR} (node:sqlite); found ${current}.
+FlowSight requires Node >= ${REQUIRED_MAJOR}.${REQUIRED_MINOR} (node:sqlite); found ${current}.
 
 Install it with:
   nvm install ${REQUIRED_MAJOR}     # then re-run, no 'nvm use' needed

@@ -320,7 +320,7 @@ document.querySelector('#btn-export-csv').addEventListener('click', () => {
   const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `ipfixmon_forensics_${Date.now()}.csv`;
+  a.download = `flowsight_forensics_${Date.now()}.csv`;
   a.click();
 });
 
@@ -330,7 +330,7 @@ document.querySelector('#btn-export-json').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(currentSearchResults, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `ipfixmon_forensics_${Date.now()}.json`;
+  a.download = `flowsight_forensics_${Date.now()}.json`;
   a.click();
 });
 

@@ -1,6 +1,6 @@
-/* ── IPFIXMon Theme Toggle ── */
+/* ── FlowSight Theme Toggle ── */
 (function() {
-  const STORAGE_KEY = 'ipfixmon-theme';
+  const STORAGE_KEY = 'flowsight-theme';
 
   function getPreferred() {
     const saved = localStorage.getItem(STORAGE_KEY);

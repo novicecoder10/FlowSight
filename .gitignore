@@ -5,8 +5,9 @@ dist/
 data/*.mmdb
 
 # Runtime databases
-data/flowgen.sqlite*
+data/flowsight.sqlite*
 data/ipfixmon.sqlite*
+data/flowgen.sqlite*
 
 # Compiled sniffer artefacts
 cpp-sniffer/*.o
@@ -15,8 +16,3 @@ cpp-sniffer/build/
 
 # Editor / assistant rules kept out of the repo
 .github/instructions/codacy.instructions.md
-
-# Local assistant context, not part of the project
-CLAUDE.md
-AGENTS.md
-.claude/

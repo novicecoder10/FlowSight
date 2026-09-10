@@ -3,6 +3,21 @@
 All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-09-10
+
+### Changed
+
+- **Renamed from IPFIXMon to FlowSight.** The old name described the wire format of one
+  input; the project had grown into flow storage, detection engines and a seventeen-page
+  dashboard. `[IPFIX]` remains the sniffer's stdout line marker — that is the protocol,
+  not the product.
+- Environment variables `IPFIXMON_DB` and `IPFIXMON_TOKEN` are now `FLOWSIGHT_DB` and
+  `FLOWSIGHT_TOKEN`. The old names are still read as fallbacks, and the default database
+  path falls back to `data/ipfixmon.sqlite` when that file already exists, so an existing
+  install keeps its history across the rename without configuration.
+- Package metadata corrected: the manifest declared `ISC` and an unset author while the
+  bundled `LICENSE` is MIT.
+
 ## [1.2.0] - 2026-09-09
 
 ### Added
@@ -73,7 +88,7 @@ network to affect the monitoring host itself, so upgrading is recommended.
   quantifiers, and compiled once.
 - **Unauthenticated network exposure.** The dashboard bound `0.0.0.0` with no
   authentication, publishing the full capture history. It now binds `127.0.0.1` by
-  default, and `IPFIXMON_TOKEN` enables bearer-token authentication.
+  default, and `FLOWSIGHT_TOKEN` enables bearer-token authentication.
 - **Remote memory exhaustion.** Per-host detector state and the GeoIP, DNS and ASN
   caches grew without bound, keyed by an address the sender chooses. All are now capped
   (`MAX_TRACKED_HOSTS`, `MAX_LOOKUP_CACHE`).
@@ -100,7 +115,7 @@ network to affect the monitoring host itself, so upgrading is recommended.
   `POST 200 OK` string and always recorded `SUCCESS` without issuing a request, and the
   blocklist action recorded a perimeter update that never happened. Webhooks are now
   dispatched for real with the actual HTTP outcome recorded, shunned addresses are
-  stored in a `soar_blocklist` table, and the blocklist wording states that IPFIXMon
+  stored in a `soar_blocklist` table, and the blocklist wording states that FlowSight
   does not modify the firewall.
 - **Retention policy silently ignored.** `POST /api/compliance/retention` had no body
   parser, so it always stored 90 days and `auto_purge` off while returning the submitted

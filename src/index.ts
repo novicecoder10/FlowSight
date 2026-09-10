@@ -1,7 +1,7 @@
 import express from 'express';
 import { ChildProcessWithoutNullStreams, execFile, spawn } from 'child_process';
 import { promises as dns } from 'dns';
-import { mkdirSync } from 'fs';
+import { existsSync, mkdirSync } from 'fs';
 import { DatabaseSync } from 'node:sqlite';
 import path from 'path';
 import crypto from 'crypto';
@@ -32,7 +32,13 @@ const dnsCache = new Map<string, string[]>();
 const asnCache = new Map<string, unknown>();
 const dataDirectory = path.join(process.cwd(), 'data');
 mkdirSync(dataDirectory, { recursive: true });
-const database = new DatabaseSync(process.env.IPFIXMON_DB || path.join(dataDirectory, 'ipfixmon.sqlite'));
+// The project was renamed from IPFIXMon; the old variable and database filename are
+// still honoured so an existing install keeps its history across the rename.
+const legacyDatabasePath = path.join(dataDirectory, 'ipfixmon.sqlite');
+const databasePath = process.env.FLOWSIGHT_DB
+    || process.env.IPFIXMON_DB
+    || (existsSync(legacyDatabasePath) ? legacyDatabasePath : path.join(dataDirectory, 'flowsight.sqlite'));
+const database = new DatabaseSync(databasePath);
 const apiCache = new Map<string, { data: any; expiresAt: number }>();
 
 // Every one of these caches is keyed by an address the sender chooses, so an unbounded
@@ -1412,14 +1418,14 @@ function evaluateSOARRules(eventData: { type: string; source_ip: string; destina
                         event_id: `soar:${rule.id}:${Date.now()}`,
                     });
                 } else if (action === 'blocklist') {
-                    // Records the IP for export via /api/soar/export-blocklist. IPFIXMon
+                    // Records the IP for export via /api/soar/export-blocklist. FlowSight
                     // does not touch the firewall itself, so say so rather than implying
                     // the perimeter was actually updated.
                     actionDesc = 'Perimeter IP Shunning';
                     try {
                         const shunTime = new Date().toISOString();
                         upsertBlocklistIP.run(eventData.source_ip, shunTime, shunTime, rule.id, rule.name, `Matched rule "${rule.name}"`);
-                        details = `IP ${eventData.source_ip} queued for perimeter export (not enforced by IPFIXMon)`;
+                        details = `IP ${eventData.source_ip} queued for perimeter export (not enforced by FlowSight)`;
                     } catch (error) {
                         status = 'FAILED';
                         details = `Failed to record blocklist entry: ${(error as Error).message}`;
@@ -1452,11 +1458,11 @@ type GeoLocation = {
 // A dashboard exposing full packet capture should not be reachable from the whole
 // network by default. Bind loopback unless the operator opts out explicitly.
 const host = process.env.HOST || '127.0.0.1';
-const authToken = process.env.IPFIXMON_TOKEN || '';
+const authToken = process.env.FLOWSIGHT_TOKEN || process.env.IPFIXMON_TOKEN || '';
 
 app.use(express.json());
 
-// Optional shared-secret auth. Enabled only when IPFIXMON_TOKEN is set, so existing
+// Optional shared-secret auth. Enabled only when FLOWSIGHT_TOKEN is set, so existing
 // local workflows keep working untouched.
 if (authToken) {
     app.use((req, res, next) => {
@@ -1928,24 +1934,24 @@ app.get('/api/soar/export-blocklist', (req, res) => {
 
     if (format === 'iptables') {
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', 'attachment; filename="ipfixmon-blocklist.sh"');
-        let output = `# IPFIXMon SOAR Perimeter Auto-Blocklist\n# Generated: ${nowStr}\n# Total IPs: ${ipList.length}\n\n`;
+        res.setHeader('Content-Disposition', 'attachment; filename="flowsight-blocklist.sh"');
+        let output = `# FlowSight SOAR Perimeter Auto-Blocklist\n# Generated: ${nowStr}\n# Total IPs: ${ipList.length}\n\n`;
         for (const ip of ipList) {
             output += `iptables -A INPUT -s ${ip} -j DROP\n`;
         }
         res.send(output);
     } else if (format === 'ipset') {
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', 'attachment; filename="ipfixmon-ipset.set"');
-        let output = `create ipfixmon-block hash:ip family inet hashsize 1024 maxelem 65536\n`;
+        res.setHeader('Content-Disposition', 'attachment; filename="flowsight-ipset.set"');
+        let output = `create flowsight-block hash:ip family inet hashsize 1024 maxelem 65536\n`;
         for (const ip of ipList) {
-            output += `add ipfixmon-block ${ip}\n`;
+            output += `add flowsight-block ${ip}\n`;
         }
         res.send(output);
     } else if (format === 'cisco') {
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Content-Disposition', 'attachment; filename="ipfixmon-cisco.acl"');
-        let output = `! IPFIXMon Access Control List Export\n! Generated: ${nowStr}\n\n`;
+        res.setHeader('Content-Disposition', 'attachment; filename="flowsight-cisco.acl"');
+        let output = `! FlowSight Access Control List Export\n! Generated: ${nowStr}\n\n`;
         for (const ip of ipList) {
             output += `access-list 100 deny ip host ${ip} any\n`;
         }
@@ -2561,7 +2567,7 @@ app.get('/api/compliance/report', (req, res) => {
 
     if (format === 'json') {
         res.json({
-            title: 'IPFIXMon Executive Security Compliance & Audit Report',
+            title: 'FlowSight Executive Security Compliance & Audit Report',
             generated_at: new Date().toISOString(),
             framework_filter: frameworkFilter,
             summary: {
@@ -2596,7 +2602,7 @@ app.get('/api/compliance/report', (req, res) => {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Executive Compliance Audit Report - IPFIXMon</title>
+<title>Executive Compliance Audit Report - FlowSight</title>
 <style>
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1a1a1a; line-height: 1.5; background: #fff; }
   .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 30px; }
@@ -2628,7 +2634,7 @@ app.get('/api/compliance/report', (req, res) => {
 
 <div class="header">
   <div>
-    <div class="logo">IPFIXMon <span class="tag">Compliance Audit</span></div>
+    <div class="logo">FlowSight <span class="tag">Compliance Audit</span></div>
     <div class="subtitle">Continuous Security Control Monitoring & Evidence Summary</div>
   </div>
   <div class="meta">
@@ -2688,7 +2694,7 @@ app.get('/api/compliance/report', (req, res) => {
 </table>
 
 <div class="footer">
-  <div>IPFIXMon Enterprise Network Security & Telemetry Platform</div>
+  <div>FlowSight Enterprise Network Security & Telemetry Platform</div>
   <div>Signature: ______________________ (Chief Information Security Officer)</div>
 </div>
 </body>
@@ -3238,15 +3244,15 @@ app.get('/api/flows/matrix', (req, res) => {
 
 
 app.listen(port, host, async () => {
-    console.log(`IPFIXMon dashboard: http://${host}:${port}`);
-    if (!authToken) console.log('IPFIXMon: no IPFIXMON_TOKEN set \u2014 API is unauthenticated (bound to ' + host + ')');
+    console.log(`FlowSight dashboard: http://${host}:${port}`);
+    if (!authToken) console.log('FlowSight: no FLOWSIGHT_TOKEN set \u2014 API is unauthenticated (bound to ' + host + ')');
 
     // GeoIP shells out to mmdblookup (libmaxminddb-bin). It is an undeclared external
     // dependency, so say so at boot rather than letting every lookup fail with a 503.
     execFile('mmdblookup', ['--version'], (error) => {
         if (error) {
             geoipToolAvailable = false;
-            console.warn('IPFIXMon: mmdblookup not found on PATH \u2014 the GeoIP page will be unavailable. Install it with: sudo apt install libmaxminddb-bin');
+            console.warn('FlowSight: mmdblookup not found on PATH \u2014 the GeoIP page will be unavailable. Install it with: sudo apt install libmaxminddb-bin');
         }
     });
     // Load threat intelligence feeds
@@ -3260,10 +3266,10 @@ app.listen(port, host, async () => {
             const result = rollup.runRollup();
             const purged = rollup.purgeExpiredFlows();
             if (result.packetsIn > 0 || purged > 0) {
-                console.log(`IPFIXMon rollup: ${result.packetsIn} packets -> ${result.flowsOut} flows, ${purged} expired flows purged`);
+                console.log(`FlowSight rollup: ${result.packetsIn} packets -> ${result.flowsOut} flows, ${purged} expired flows purged`);
             }
         } catch (error) {
-            console.error('IPFIXMon rollup failed:', (error as Error).message);
+            console.error('FlowSight rollup failed:', (error as Error).message);
         }
     };
     setTimeout(rollupTick, 30_000);
@@ -3286,7 +3292,7 @@ app.listen(port, host, async () => {
     if (process.env.DISABLE_SNIFFER !== '1') {
         startSniffer();
     } else {
-        console.log('IPFIXMon: Sniffer disabled — starting synthetic demo traffic generator for testing...');
+        console.log('FlowSight: Sniffer disabled — starting synthetic demo traffic generator for testing...');
         const demoNormalSrcs = ['192.168.1.10', '192.168.1.15', '192.168.1.20', '10.0.0.5', '10.0.0.12'];
         const demoAttackerSrcs = ['185.220.101.5', '45.146.164.110', '193.142.146.210', '185.191.171.12', '91.240.118.172'];
         const demoTargets = ['192.168.1.100', '10.0.0.50'];

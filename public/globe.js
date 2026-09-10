@@ -1,4 +1,4 @@
-/* ── IPFIXMon Globe ── */
+/* ── FlowSight Globe ── */
 const canvas = document.querySelector('#globe-canvas');
 const context = canvas.getContext('2d');
 const routes = [];

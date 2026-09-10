@@ -568,7 +568,7 @@ void start_sniffing(const char* device) {
 
     pcap_t* handle = pcap_create(dev_str.c_str(), errbuf);
     if (!handle) {
-        std::fprintf(stderr, "[IPFIXMon] Couldn't create handle for device %s: %s, falling back to pcap_open_live\n", dev_str.c_str(), errbuf);
+        std::fprintf(stderr, "[FlowSight] Couldn't create handle for device %s: %s, falling back to pcap_open_live\n", dev_str.c_str(), errbuf);
         handle = pcap_open_live(dev_str.c_str(), 65535, dev_str == "any" ? 0 : 1, 1, errbuf);
     } else {
         pcap_set_buffer_size(handle, 256 * 1024 * 1024);
@@ -594,7 +594,7 @@ void start_sniffing(const char* device) {
         }
 
         if (status < 0) {
-            std::fprintf(stderr, "[IPFIXMon] Couldn't activate interface %s (code %d): %s\n", dev_str.c_str(), status, pcap_geterr(handle));
+            std::fprintf(stderr, "[FlowSight] Couldn't activate interface %s (code %d): %s\n", dev_str.c_str(), status, pcap_geterr(handle));
             g_running = false;
             if (output_thread.joinable()) output_thread.join();
             if (handle) pcap_close(handle);
@@ -603,7 +603,7 @@ void start_sniffing(const char* device) {
     }
 
     if (!handle) {
-        std::fprintf(stderr, "[IPFIXMon] Couldn't open device %s: %s\n", dev_str.c_str(), errbuf);
+        std::fprintf(stderr, "[FlowSight] Couldn't open device %s: %s\n", dev_str.c_str(), errbuf);
         g_running = false;
         if (output_thread.joinable()) output_thread.join();
         return;
@@ -616,10 +616,10 @@ void start_sniffing(const char* device) {
     if (pcap_compile(handle, &fcode, "", 1, PCAP_NETMASK_UNKNOWN) == 0) {
         pcap_setfilter(handle, &fcode);
         pcap_freecode(&fcode);
-        std::fprintf(stderr, "[IPFIXMon] Attached promiscuous kernel eBPF/BPF filter (accept all frames)\n");
+        std::fprintf(stderr, "[FlowSight] Attached promiscuous kernel eBPF/BPF filter (accept all frames)\n");
     }
 
-    std::fprintf(stderr, "[IPFIXMon] High-Speed Ring Buffer (256MB) Active on interface '%s'\n", dev_str.c_str());
+    std::fprintf(stderr, "[FlowSight] High-Speed Ring Buffer (256MB) Active on interface '%s'\n", dev_str.c_str());
 
     CaptureContext context{14};
     switch (pcap_datalink(handle)) {
