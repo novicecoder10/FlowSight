@@ -25,6 +25,10 @@ const clients = new Set<express.Response>();
 let packetId = 0;
 let sniffer: ChildProcessWithoutNullStreams | undefined;
 let captureError = '';
+// What the packet stream actually is, so the dashboard can say so rather than
+// guessing from the presence of a child process. 'demo' traffic is generated in
+// this process and is real enough to drive every detector, but it is not capture.
+let captureMode: 'capture' | 'demo' | 'off' = 'off';
 const geoipCache = new Map<string, GeoLocation | null>();
 let geoipToolAvailable = true;
 const geoipDatabase = process.env.GEOIP_MMDB || path.join(process.cwd(), 'data/dbip-city-lite.mmdb');
@@ -1485,7 +1489,7 @@ app.get('/api/stream', (req, res) => {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.flushHeaders();
-    res.write(`event: status\ndata: ${JSON.stringify({ running: Boolean(sniffer), error: captureError })}\n\n`);
+    res.write(`event: status\ndata: ${JSON.stringify(captureStatus())}\n\n`);
     clients.add(res);
     req.on('close', () => clients.delete(res));
 });
@@ -1617,8 +1621,17 @@ function publish(packet: Packet) {
     evaluateSOARRules({ type: 'packet', source_ip: packet.source, destination_ip: packet.destination, bytes: packet.bytes, metadata: packet.metadata });
 }
 
+function captureStatus() {
+    return {
+        running: captureMode === 'capture' ? Boolean(sniffer) && !captureError : captureMode === 'demo',
+        mode: captureMode,
+        device: captureMode === 'capture' ? (process.env.SNIFFER_DEVICE || 'any') : '',
+        error: captureError,
+    };
+}
+
 function publishStatus() {
-    const message = `event: status\ndata: ${JSON.stringify({ running: Boolean(sniffer), error: captureError })}\n\n`;
+    const message = `event: status\ndata: ${JSON.stringify(captureStatus())}\n\n`;
     for (const client of clients) client.write(message);
 }
 
@@ -3290,8 +3303,10 @@ app.listen(port, host, async () => {
     }, 1000);
 
     if (process.env.DISABLE_SNIFFER !== '1') {
+        captureMode = 'capture';
         startSniffer();
     } else {
+        captureMode = 'demo';
         console.log('FlowSight: Sniffer disabled — starting synthetic demo traffic generator for testing...');
         const demoNormalSrcs = ['192.168.1.10', '192.168.1.15', '192.168.1.20', '10.0.0.5', '10.0.0.12'];
         const demoAttackerSrcs = ['185.220.101.5', '45.146.164.110', '193.142.146.210', '185.191.171.12', '91.240.118.172'];

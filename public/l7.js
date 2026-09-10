@@ -3,8 +3,6 @@ const tlsEvents = [];
 const serviceEvents = [];
 let opaqueTlsEvents = 0;
 let renderQueued = false;
-const statusDot = document.querySelector('#status-dot');
-const statusLabel = document.querySelector('#status-label');
 const fields = (metadata) => Object.fromEntries(metadata.split(';').map((item) => { const separator = item.indexOf('='); return separator < 0 ? [item, ''] : [item.slice(0, separator), item.slice(separator + 1)]; }));
 const time = (value) => new Date(value).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const cell = (value) => escapeHtml(value || '--');
@@ -35,7 +33,14 @@ function scheduleRender() {
   window.setTimeout(() => { renderQueued = false; render(); }, 150);
 }
 
-function setStatus(connected, error = '') { statusDot.classList.toggle('connected', connected); statusLabel.textContent = connected ? 'Live capture' : 'Capture unavailable'; document.querySelector('#capture-mode').textContent = connected ? 'LIVE' : 'IDLE'; document.querySelector('#capture-label').textContent = connected ? 'receiving L7 events' : (error || 'start with capture permissions'); }
+function setStatus(status) {
+  setCaptureStatus(status);
+  if (status === 'offline' || !status) return;
+  document.querySelector('#capture-mode').textContent = status.mode === 'demo' ? 'DEMO' : status.running ? 'LIVE' : 'IDLE';
+  document.querySelector('#capture-label').textContent = status.mode === 'demo'
+    ? 'synthetic generator'
+    : status.running ? 'receiving L7 events' : (status.error || 'start with capture permissions');
+}
 
 function processPacket(packet) {
   const metadata = fields(packet.metadata || '');
@@ -73,14 +78,13 @@ async function hydrateHistory() {
 const stream = new EventSource('/api/stream');
 document.querySelectorAll('.view-tab').forEach((tab) => tab.addEventListener('click', () => selectView(tab.dataset.view)));
 selectView(location.hash.slice(1) || 'http');
-stream.addEventListener('status', (event) => { const status = JSON.parse(event.data); setStatus(status.running, status.error); });
+stream.addEventListener('status', (event) => setStatus(JSON.parse(event.data)));
 stream.addEventListener('packet', (event) => {
   const packet = JSON.parse(event.data);
   processPacket(packet);
-  setStatus(true);
   scheduleRender();
 });
-stream.onerror = () => setStatus(false);
+stream.onerror = () => setStatus('offline');
 
 render();
 hydrateHistory();

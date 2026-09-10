@@ -11,8 +11,6 @@
     const rulesCountBadge = document.getElementById('rules-count-badge');
     const execsCountBadge = document.getElementById('execs-count-badge');
 
-    const statusDot = document.getElementById('status-dot');
-    const liveLabel = document.getElementById('live-label');
 
     const btnCreateRule = document.getElementById('btn-create-rule');
     const ruleModal = document.getElementById('rule-modal');
@@ -248,15 +246,7 @@
         const evSource = new EventSource('/api/stream');
 
         evSource.addEventListener('status', (e) => {
-            try {
-                const data = JSON.parse(e.data);
-                if (statusDot) {
-                    statusDot.className = 'status-dot' + (data.running ? ' online' : ' error');
-                }
-                if (liveLabel) {
-                    liveLabel.textContent = data.running ? 'Live Capture' : data.error ? 'Engine Warning' : 'Demo Stream';
-                }
-            } catch (err) {}
+            try { setCaptureStatus(JSON.parse(e.data)); } catch (err) {}
         });
 
         evSource.addEventListener('soar_execution', (e) => {
@@ -269,10 +259,7 @@
             } catch (err) {}
         });
 
-        evSource.onerror = () => {
-            if (statusDot) statusDot.className = 'status-dot error';
-            if (liveLabel) liveLabel.textContent = 'Disconnected';
-        };
+        evSource.onerror = () => setCaptureStatus('offline');
     }
 
     // Init Page

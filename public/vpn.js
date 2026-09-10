@@ -2,26 +2,16 @@ const detections = [];
 let statsData = null;
 let renderQueued = false;
 
-const statusDot = document.querySelector('#status-dot');
-const liveLabel = document.querySelector('#live-label');
 const stream = new EventSource('/api/stream');
 
-function setStatus(connected, error = '') {
-  statusDot.classList.toggle('connected', connected);
-  liveLabel.textContent = connected ? 'Live capture' : (error || 'Capture unavailable');
-}
-
-stream.addEventListener('status', (event) => {
-  const status = JSON.parse(event.data);
-  setStatus(status.running, status.error);
-});
+stream.addEventListener('status', (event) => setCaptureStatus(JSON.parse(event.data)));
 
 stream.addEventListener('vpn_detection', (event) => {
   const item = JSON.parse(event.data);
   addDetection(item);
 });
 
-stream.onerror = () => setStatus(false);
+stream.onerror = () => setCaptureStatus('offline');
 
 function addDetection(item) {
   detections.push(item);

@@ -2,10 +2,7 @@ const addresses = new Map();
 const locations = new Map();
 let renderQueued = false;
 let eventCount = 0;
-const statusDot = document.querySelector('#status-dot');
-const statusLabel = document.querySelector('#status-label');
 
-function setStatus(connected) { statusDot.classList.toggle('connected', connected); statusLabel.textContent = connected ? 'Live capture' : 'Capture unavailable'; }
 function scheduleRender() { if (renderQueued) return; renderQueued = true; window.setTimeout(() => { renderQueued = false; render(); }, 200); }
 function render() {
   const ordered = [...locations.values()].sort((left, right) => right.count - left.count);
@@ -35,9 +32,9 @@ async function hydrateHistory() {
 }
 
 const stream = new EventSource('/api/stream');
-stream.addEventListener('status', (event) => { const status = JSON.parse(event.data); setStatus(status.running); });
-stream.addEventListener('packet', (event) => { const packet = JSON.parse(event.data); eventCount += 1; lookup(packet.source); lookup(packet.destination); setStatus(true); });
-stream.onerror = () => setStatus(false);
+stream.addEventListener('status', (event) => setCaptureStatus(JSON.parse(event.data)));
+stream.addEventListener('packet', (event) => { const packet = JSON.parse(event.data); eventCount += 1; lookup(packet.source); lookup(packet.destination); });
+stream.onerror = () => setCaptureStatus('offline');
 
 render();
 hydrateHistory();

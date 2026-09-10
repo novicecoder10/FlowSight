@@ -3,6 +3,37 @@
 All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-09-10
+
+### Fixed
+
+- **The capture status in the topbar never updated.** Six pages read `#status-label`,
+  an id that does not exist in any page, so the first status event threw a TypeError
+  and the readout stayed on "Connecting" while packets streamed in behind it. The
+  capture-mode tile was set in the same line and froze with it.
+- **Metric tiles stacked vertically on four pages.** The UEBA, ATT&CK, SOAR and
+  compliance pages mark their tile bar up as `.metrics-grid`, a class the stylesheet
+  never defined, so each tile became a full-width block and pushed the actual content
+  below the fold. Same for `.hero-strip` on the UEBA page.
+- The incident table clipped its last column instead of scrolling.
+
+### Changed
+
+- **One vocabulary for capture state.** Pages each invented their own wording — "Live",
+  "LIVE STREAM", "Demo Stream", "Engine Warning", "Live (1 flows/s)" from a field the
+  event never carried — and the flow matrix asserted "Live Capture" on any status event
+  regardless of its contents. All of them now render through `setCaptureStatus`, which
+  reports one of Capturing / Demo data / No capture / Reconnecting.
+- The status event carries `mode` and `device`, so the dashboard can say that traffic is
+  synthetic rather than inferring capture health from the presence of a child process.
+  Demo mode no longer reports itself as a failed capture.
+- **The topbar ends in one object** — state, its cause, and the theme control behind a
+  hairline — rather than a floating label beside a detached button.
+- Page heads are compact and say what the page is: the display type ran to 92px and
+  pushed the first metric below the fold. Titles, nav entries and tab titles now use the
+  same names, and copy like "Traffic, in motion.", "Enterprise SOC" and red "NEW" flags
+  on eight-month-old nav items is gone.
+
 ## [1.3.0] - 2026-09-10
 
 ### Changed

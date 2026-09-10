@@ -78,14 +78,12 @@
     }
 
     function setupSSE() {
-        const statusDot = document.getElementById('status-dot');
-        const liveLabel = document.getElementById('live-label');
         const source = new EventSource('/api/stream');
 
-        source.addEventListener('status', () => {
-            if (statusDot) statusDot.classList.add('online');
-            if (liveLabel) liveLabel.textContent = 'Live Capture';
-        });
+        // This page used to assert 'Live Capture' on any status event, whatever the
+        // event actually said. It now reports what the server reports.
+        source.addEventListener('status', (e) => setCaptureStatus(JSON.parse(e.data)));
+        source.onerror = () => setCaptureStatus('offline');
 
         let sseDebounce = null;
         source.addEventListener('packet', () => {

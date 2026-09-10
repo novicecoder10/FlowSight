@@ -1,18 +1,9 @@
 const threats = [];
 let renderQueued = false;
-const statusDot = document.querySelector('#status-dot');
-const liveLabel = document.querySelector('#live-label');
 const stream = new EventSource('/api/stream');
 
-function setStatus(connected, error = '') { 
-  statusDot.classList.toggle('connected', connected); 
-  liveLabel.textContent = connected ? 'Live capture' : 'Capture unavailable'; 
-}
-
-stream.addEventListener('status', (event) => { 
-  const status = JSON.parse(event.data); 
-  setStatus(status.running, status.error); 
-});
+stream.addEventListener('status', (event) => setCaptureStatus(JSON.parse(event.data)));
+stream.onerror = () => setCaptureStatus('offline');
 
 stream.addEventListener('threat', (event) => { 
   const threat = JSON.parse(event.data);

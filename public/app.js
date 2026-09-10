@@ -7,7 +7,6 @@ const bandwidthBuckets = Array.from({ length: 10 }, () => 0);
 let renderQueued = false;
 
 const elements = {
-  statusDot: document.querySelector('#status-dot'), statusLabel: document.querySelector('#status-label'), captureLabel: document.querySelector('#capture-label'),
   packetCount: document.querySelector('#packet-count'), packetRate: document.querySelector('#packet-rate'), bandwidth: document.querySelector('#bandwidth'), bandwidthDetail: document.querySelector('#bandwidth-detail'), protocolCount: document.querySelector('#protocol-count'), topProtocol: document.querySelector('#top-protocol'), topShare: document.querySelector('#top-protocol-share'),
   protocolList: document.querySelector('#protocol-list'), flowTable: document.querySelector('#flow-table'), flowCount: document.querySelector('#flow-count'), captureMode: document.querySelector('#capture-mode'), interfaceLabel: document.querySelector('#interface-label')
 };
@@ -113,13 +112,22 @@ async function hydrateHistory() {
   }
 }
 
-function setConnected(connected, error = '') { elements.statusDot.classList.toggle('connected', connected); elements.statusLabel.textContent = connected ? 'Live capture' : 'Capture unavailable'; elements.captureLabel.textContent = connected ? 'Receiving packet events' : (error || 'Start with capture permissions'); elements.captureMode.textContent = connected ? 'LIVE' : 'IDLE'; }
+// The topbar rail owns connection state (see setCaptureStatus in theme.js). This
+// only drives the capture-mode tile, which names the source of the packets.
+function setConnected(status) {
+  setCaptureStatus(status);
+  if (status === 'offline' || !status) return;
+  const mode = status.mode === 'demo' ? 'DEMO' : status.running ? 'LIVE' : 'IDLE';
+  elements.captureMode.textContent = mode;
+  elements.interfaceLabel.textContent = status.mode === 'demo'
+    ? 'synthetic generator'
+    : `interface: ${status.device || 'any'}`;
+}
 
 const stream = new EventSource('/api/stream');
-stream.addEventListener('status', (event) => { const status = JSON.parse(event.data); setConnected(status.running, status.error); });
-stream.addEventListener('packet', (event) => { const packet = JSON.parse(event.data); addPacket(packet); setConnected(true); scheduleRender(); });
-stream.onerror = () => setConnected(false);
-elements.interfaceLabel.textContent = `interface: ${new URLSearchParams(location.search).get('device') || 'any'}`;
+stream.addEventListener('status', (event) => setConnected(JSON.parse(event.data)));
+stream.addEventListener('packet', (event) => { const packet = JSON.parse(event.data); addPacket(packet); scheduleRender(); });
+stream.onerror = () => setConnected('offline');
 window.addEventListener('resize', drawChart);
 setInterval(() => { trafficBuckets.shift(); trafficBuckets.push(0); bandwidthBuckets.shift(); bandwidthBuckets.push(0); drawChart(); scheduleRender(); }, 1000);
 render();

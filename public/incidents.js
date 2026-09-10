@@ -5,19 +5,9 @@ let currentSeverityFilter = 'ALL';
 let currentCategoryFilter = 'ALL';
 let statsData = null;
 
-const statusDot = document.querySelector('#status-dot');
-const liveLabel = document.querySelector('#live-label');
 const stream = new EventSource('/api/stream');
 
-function setStatus(connected) {
-  statusDot.classList.toggle('connected', connected);
-  liveLabel.textContent = connected ? 'Live capture' : 'Capture unavailable';
-}
-
-stream.addEventListener('status', (event) => {
-  const status = JSON.parse(event.data);
-  setStatus(status.running);
-});
+stream.addEventListener('status', (event) => setCaptureStatus(JSON.parse(event.data)));
 
 stream.addEventListener('incident_new', (event) => {
   const item = JSON.parse(event.data);
@@ -40,7 +30,7 @@ stream.addEventListener('incident_update', (event) => {
   render();
 });
 
-stream.onerror = () => setStatus(false);
+stream.onerror = () => setCaptureStatus('offline');
 
 const formatTime = (value) => new Date(value).toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
 const formatFullDate = (value) => new Date(value).toLocaleString();
@@ -75,7 +65,7 @@ async function fetchIncidents() {
 }
 
 function render() {
-  document.querySelector('#incidents-count-tag').textContent = `${incidents.length} NOTABLE EVENTS`;
+  document.querySelector('#incidents-count-tag').textContent = `${incidents.length} INCIDENTS`;
 
   const tbody = document.querySelector('#incidents-table tbody');
   if (incidents.length === 0) {

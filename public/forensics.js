@@ -8,17 +8,11 @@ const searchForm = document.querySelector('#search-form');
 const searchInput = document.querySelector('#search-input');
 const timerangeSelect = document.querySelector('#timerange-select');
 const btnClear = document.querySelector('#btn-clear');
-const statusDot = document.querySelector('#status-dot');
-const liveLabel = document.querySelector('#live-label');
 
 // SSE stream for status dot indicator
 const stream = new EventSource('/api/stream');
-stream.addEventListener('status', (event) => {
-  const status = JSON.parse(event.data);
-  statusDot.classList.toggle('connected', status.running);
-  liveLabel.textContent = status.running ? 'Live capture' : 'Capture unavailable';
-});
-stream.onerror = () => statusDot.classList.remove('connected');
+stream.addEventListener('status', (event) => setCaptureStatus(JSON.parse(event.data)));
+stream.onerror = () => setCaptureStatus('offline');
 window.addEventListener('beforeunload', () => stream.close());
 
 function getStartTimeISO(range) {

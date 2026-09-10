@@ -8,8 +8,6 @@
     const metricTopCount = document.getElementById('metric-top-count');
     const metricHuntingLeads = document.getElementById('metric-hunting-leads');
 
-    const statusDot = document.getElementById('status-dot');
-    const liveLabel = document.getElementById('live-label');
 
     // Drawer Elements
     const drawer = document.getElementById('technique-drawer');
@@ -208,11 +206,7 @@
         const evSource = new EventSource('/api/stream');
 
         evSource.addEventListener('status', (e) => {
-            try {
-                const data = JSON.parse(e.data);
-                if (statusDot) statusDot.className = 'status-dot' + (data.running ? ' online' : ' error');
-                if (liveLabel) liveLabel.textContent = data.running ? 'Live Capture' : data.error ? 'Engine Warning' : 'Demo Stream';
-            } catch (err) {}
+            try { setCaptureStatus(JSON.parse(e.data)); } catch (err) {}
         });
 
         // Trigger matrix refresh when new security events arrive
@@ -230,10 +224,7 @@
         evSource.addEventListener('ueba_anomaly', scheduleRefresh);
         evSource.addEventListener('vpn_detection', scheduleRefresh);
 
-        evSource.onerror = () => {
-            if (statusDot) statusDot.className = 'status-dot error';
-            if (liveLabel) liveLabel.textContent = 'Disconnected';
-        };
+        evSource.onerror = () => setCaptureStatus('offline');
     }
 
     // Init Page

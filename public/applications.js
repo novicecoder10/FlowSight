@@ -2,8 +2,6 @@ const applications = new Map();
 const addresses = new Map();
 let eventCount = 0;
 let renderQueued = false;
-const statusDot = document.querySelector('#status-dot');
-const statusLabel = document.querySelector('#status-label');
 const fieldMap = (metadata) => Object.fromEntries(metadata.split(';').map((item) => { const separator = item.indexOf('='); return separator < 0 ? [item, ''] : [item.slice(0, separator), item.slice(separator + 1)]; }));
 const knownApplications = [
   ['google', /(^|\.)google\./i, 'Google'],
@@ -19,7 +17,14 @@ const knownApplications = [
 ];
 function applicationName(host, fallback) { return knownApplications.find(([, pattern]) => pattern.test(host))?.[2] || fallback; }
 
-function setStatus(connected, error = '') { statusDot.classList.toggle('connected', connected); statusLabel.textContent = connected ? 'Live capture' : 'Capture unavailable'; document.querySelector('#capture-mode').textContent = connected ? 'LIVE' : 'IDLE'; document.querySelector('#capture-label').textContent = connected ? 'receiving application events' : (error || 'start with capture permissions'); }
+function setStatus(status) {
+  setCaptureStatus(status);
+  if (status === 'offline' || !status) return;
+  document.querySelector('#capture-mode').textContent = status.mode === 'demo' ? 'DEMO' : status.running ? 'LIVE' : 'IDLE';
+  document.querySelector('#capture-label').textContent = status.mode === 'demo'
+    ? 'synthetic generator'
+    : status.running ? 'receiving application events' : (status.error || 'start with capture permissions');
+}
 
 function render() {
   const ordered = [...applications.values()].sort((left, right) => right.count - left.count);
@@ -68,14 +73,13 @@ async function hydrateHistory() {
 }
 
 const stream = new EventSource('/api/stream');
-stream.addEventListener('status', (event) => { const status = JSON.parse(event.data); setStatus(status.running, status.error); });
+stream.addEventListener('status', (event) => setStatus(JSON.parse(event.data)));
 stream.addEventListener('packet', (event) => {
   const packet = JSON.parse(event.data);
   processPacket(packet);
-  setStatus(true);
   scheduleRender();
 });
-stream.onerror = () => setStatus(false);
+stream.onerror = () => setStatus('offline');
 
 render();
 hydrateHistory();

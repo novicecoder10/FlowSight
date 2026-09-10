@@ -8,8 +8,6 @@ let tilt = 15;
 let zoomLevel = 1.0;
 const MIN_ZOOM = 0.7;
 const MAX_ZOOM = 2.2;
-const statusDot = document.querySelector('#status-dot');
-const statusLabel = document.querySelector('#status-label');
 let livePacketReceived = false;
 
 /* ── Starfield ── */
@@ -159,10 +157,6 @@ function centroid(geom) {
 }
 
 /* ── Helpers ── */
-function setStatus(on) {
-  statusDot.classList.toggle('connected', on);
-  statusLabel.textContent = on ? 'Live capture' : 'Capture unavailable';
-}
 
 function isLoopbackIp(ip) {
   if (!ip) return true;
@@ -636,9 +630,9 @@ async function hydrateHistory() {
 
 /* ── SSE ── */
 const stream = new EventSource('/api/stream');
-stream.addEventListener('status', (e) => setStatus(JSON.parse(e.data).running));
-stream.addEventListener('packet', (e) => { addPacket(JSON.parse(e.data)); setStatus(true); });
-stream.onerror = () => setStatus(false);
+stream.addEventListener('status', (e) => setCaptureStatus(JSON.parse(e.data)));
+stream.addEventListener('packet', (e) => addPacket(JSON.parse(e.data)));
+stream.onerror = () => setCaptureStatus('offline');
 
 /* ── Boot ── */
 window.addEventListener('resize', () => draw());

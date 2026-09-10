@@ -43,21 +43,13 @@
     const drawerControlRemediation = document.getElementById('drawer-control-remediation');
 
     // ── SSE Live Status Listener ──
-    const statusDot = document.getElementById('status-dot');
-    const liveLabel = document.getElementById('live-label');
-
+    // The old label read "Live (N flows/s)" from data.active_connections, a field the
+    // status event has never carried, so it always said "Live (1 flows/s)".
     const evtSource = new EventSource('/api/stream');
     evtSource.addEventListener('status', (e) => {
-        try {
-            const data = JSON.parse(e.data);
-            if (statusDot) statusDot.classList.add('active');
-            if (liveLabel) liveLabel.textContent = `Live (${data.active_connections || 1} flows/s)`;
-        } catch { }
+        try { setCaptureStatus(JSON.parse(e.data)); } catch { }
     });
-    evtSource.onerror = () => {
-        if (statusDot) statusDot.classList.remove('active');
-        if (liveLabel) liveLabel.textContent = 'Disconnected';
-    };
+    evtSource.onerror = () => setCaptureStatus('offline');
 
     // ── Data Fetching ──
     async function loadComplianceStatus() {

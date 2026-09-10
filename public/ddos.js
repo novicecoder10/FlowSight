@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const stream = new EventSource('/api/stream');
 
-  const statusDot = document.getElementById('status-dot');
-  const liveLabel = document.getElementById('live-label');
   const metricStatus = document.getElementById('metric-status');
   const valNormalPps = document.getElementById('val-normal-pps');
   const valNormalBps = document.getElementById('val-normal-bps');
@@ -74,16 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   stream.addEventListener('status', e => {
-    try {
-      const data = JSON.parse(e.data);
-      if (statusDot) {
-        statusDot.className = data.running ? 'status-dot connected' : 'status-dot';
-      }
-      if (liveLabel) {
-        liveLabel.textContent = data.running ? 'Live' : (data.error ? 'Error' : 'Connecting');
-      }
-    } catch (err) {}
+    try { setCaptureStatus(JSON.parse(e.data)); } catch (err) {}
   });
+  stream.onerror = () => setCaptureStatus('offline');
 
   stream.addEventListener('ddos_metrics', e => {
     try {

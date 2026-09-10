@@ -29,12 +29,13 @@ endpoints for the rest.
 
 | | |
 |---|---|
-| **Incident management** — alerts correlated into incidents, with an investigation workbench<br>![Incident management](docs/images/incidents.png) | **UEBA** — port scans, z-score bandwidth spikes, C2 beaconing, protocol mismatches<br>![UEBA and anomaly engine](docs/images/ueba.png) |
-| **MITRE ATT&CK** — detections mapped onto tactics and techniques<br>![MITRE ATT&CK matrix](docs/images/mitre.png) | **Sankey and traffic matrix** — source → protocol → destination, read from aggregated flows<br>![Sankey flow and traffic matrix](docs/images/matrix.png) |
-| **Forensics search** — a query language over both storage tiers, with field breakdowns and CSV/JSON export<br>![Forensics search](docs/images/forensics.png) | **Threat intelligence, DDoS, VPN, compliance, GeoIP, DNS, ASN, L7** and a live globe fill out the rest. |
+| **Incidents** — correlated alerts, triage state and the investigation workbench<br>![Incidents](docs/images/incidents.png) | **Behaviour analytics** — port scans, bandwidth spikes, C2 beaconing, protocol mismatches<br>![Behaviour analytics](docs/images/ueba.png) |
+| **ATT&CK coverage** — detections mapped onto tactics and techniques<br>![MITRE ATT&CK coverage](docs/images/mitre.png) | **Flow matrix** — source → protocol → destination, read from aggregated flows<br>![Sankey flow and traffic matrix](docs/images/matrix.png) |
+| **Forensics search** — one query across both storage tiers, with field breakdowns and CSV/JSON export<br>![Forensics search](docs/images/forensics.png) | **Threat intelligence, DDoS, VPN, compliance, GeoIP, DNS, ASN, Layer 7** and a live globe fill out the rest. |
 
-<sub>All screenshots are from `DISABLE_SNIFFER=1` demo mode, so the capture badge reads
-idle — the traffic is from the built-in synthetic generator, not a real interface.</sub>
+<sub>Screenshots are from `DISABLE_SNIFFER=1` demo mode — the status rail reads
+"Demo data" because the packets come from the built-in generator rather than an
+interface.</sub>
 
 ## Storage tiers
 

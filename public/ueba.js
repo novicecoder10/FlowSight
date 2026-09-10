@@ -243,20 +243,10 @@
 
     // ── SSE Real-Time Event Stream Listener ──
     function connectSSE() {
-        const statusDot = document.getElementById('status-dot');
-        const liveLabel = document.getElementById('live-label');
-
         const es = new EventSource('/api/stream');
 
-        es.onopen = () => {
-            if (statusDot) statusDot.className = 'status-dot online';
-            if (liveLabel) liveLabel.textContent = 'LIVE STREAM';
-        };
-
-        es.onerror = () => {
-            if (statusDot) statusDot.className = 'status-dot offline';
-            if (liveLabel) liveLabel.textContent = 'OFFLINE';
-        };
+        es.addEventListener('status', (evt) => setCaptureStatus(JSON.parse(evt.data)));
+        es.onerror = () => setCaptureStatus('offline');
 
         es.addEventListener('ueba_anomaly', (evt) => {
             try {

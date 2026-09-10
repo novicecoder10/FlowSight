@@ -1,12 +1,11 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FlowSight DNS</title><link rel="stylesheet" href="/styles.css"><script src="/theme.js"></script></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>DNS · FlowSight</title><link rel="stylesheet" href="/styles.css"><script src="/theme.js"></script></head>
 <body><main class="shell">
       <header class="topbar">
       <div class="brand-wrapper">
         <div class="brand"><span class="brand-mark">FS</span></div>
         <div class="brand-title-box">
           <span class="brand-name">FlowSight</span>
-          <span class="sec-badge">Enterprise SOC</span>
         </div>
       </div>
 
@@ -27,29 +26,28 @@
             <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item " href="/matrix.html"><span class="item-title">Flow Matrix & Sankey <span class="hot-tag">NEW</span></span><span class="item-desc">Multi-stage flow ribbons & matrix</span></a>
-            <a class="dropdown-item " href="/l7.html"><span class="item-title">L7 Details</span><span class="item-desc">Deep packet inspection mix</span></a>
-            <a class="dropdown-item " href="/applications.html"><span class="item-title">Applications</span><span class="item-desc">Application protocol breakdown</span></a>
+            <a class="dropdown-item " href="/matrix.html"><span class="item-title">Flow matrix</span><span class="item-desc">Sankey ribbons and source-destination grid</span></a>
+            <a class="dropdown-item " href="/l7.html"><span class="item-title">Layer 7</span><span class="item-desc">HTTP and TLS detail</span></a>
+            <a class="dropdown-item " href="/applications.html"><span class="item-title">Applications</span><span class="item-desc">Busiest hosts and services</span></a>
           </div>
         </div>
 
         <!-- Security Operations -->
         <div class="nav-dropdown">
-          <button type="button" class="dropdown-btn incidents-nav-btn ">
+          <button type="button" class="dropdown-btn ">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <span>Security & SOC</span>
-            <span class="hot-tag">SOC</span>
+            <span>Security</span>
             <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item " href="/incidents.html"><span class="item-title">Notable Incidents <span class="hot-tag">NEW</span></span><span class="item-desc">Alert Review & Triage Workflows</span></a>
-            <a class="dropdown-item " href="/compliance.html"><span class="item-title">Compliance <span class="hot-tag">NEW</span></span><span class="item-desc">PCI-DSS / NIST / SOC2 Frameworks</span></a>
-            <a class="dropdown-item " href="/mitre.html"><span class="item-title">MITRE ATT&CK Matrix <span class="hot-tag">NEW</span></span><span class="item-desc">Adversary Tactics & Threat Hunting</span></a>
-            <a class="dropdown-item " href="/alerts.html"><span class="item-title">SOAR & Alert Rules <span class="hot-tag">NEW</span></span><span class="item-desc">Automated Response & Playbooks</span></a>
-            <a class="dropdown-item " href="/threats.html"><span class="item-title">Threat Intelligence</span><span class="item-desc">Real-time C2 & IOC matches</span></a>
-            <a class="dropdown-item " href="/ddos.html"><span class="item-title">DDoS Defense</span><span class="item-desc">Flood attack & anomaly detection</span></a>
-            <a class="dropdown-item " href="/vpn.html"><span class="item-title">VPN Detection</span><span class="item-desc">Tunnel & proxy traffic detection</span></a>
-            <a class="dropdown-item " href="/ueba.html"><span class="item-title">UEBA Analytics <span class="hot-tag">NEW</span></span><span class="item-desc">Behavior & anomaly detection</span></a>
+            <a class="dropdown-item " href="/incidents.html"><span class="item-title">Incidents</span><span class="item-desc">Correlated alerts and triage</span></a>
+            <a class="dropdown-item " href="/compliance.html"><span class="item-title">Compliance</span><span class="item-desc">Control checks and retention</span></a>
+            <a class="dropdown-item " href="/mitre.html"><span class="item-title">ATT&amp;CK coverage</span><span class="item-desc">Tactics and techniques observed</span></a>
+            <a class="dropdown-item " href="/alerts.html"><span class="item-title">Rules and automation</span><span class="item-desc">Detection rules and playbooks</span></a>
+            <a class="dropdown-item " href="/threats.html"><span class="item-title">Threat intelligence</span><span class="item-desc">Feed matches on live traffic</span></a>
+            <a class="dropdown-item " href="/ddos.html"><span class="item-title">DDoS detection</span><span class="item-desc">Flood detection and attribution</span></a>
+            <a class="dropdown-item " href="/vpn.html"><span class="item-title">VPN and proxy</span><span class="item-desc">Tunnel and proxy classification</span></a>
+            <a class="dropdown-item " href="/ueba.html"><span class="item-title">Behaviour analytics</span><span class="item-desc">Per-host anomaly detection</span></a>
           </div>
         </div>
 
@@ -57,14 +55,14 @@
         <div class="nav-dropdown">
           <button type="button" class="dropdown-btn active-category">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <span>Network Intel</span>
+            <span>Network intel</span>
             <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <div class="dropdown-menu">
-            <a class="dropdown-item " href="/geoip.html"><span class="item-title">GeoIP Map</span><span class="item-desc">Geographic flow distribution</span></a>
-            <a class="dropdown-item active" href="/dns.html"><span class="item-title">DNS Traffic</span><span class="item-desc">Domain queries & resolution stats</span></a>
-            <a class="dropdown-item " href="/asn.html"><span class="item-title">ASN / BGP</span><span class="item-desc">Network provider & ISP routing</span></a>
-            <a class="dropdown-item " href="/globe.html"><span class="item-title">3D Globe</span><span class="item-desc">Interactive 3D spatial traffic globe</span></a>
+            <a class="dropdown-item " href="/geoip.html"><span class="item-title">GeoIP</span><span class="item-desc">Country and city rollups</span></a>
+            <a class="dropdown-item active" href="/dns.html"><span class="item-title">DNS</span><span class="item-desc">Reverse-DNS for public endpoints</span></a>
+            <a class="dropdown-item " href="/asn.html"><span class="item-title">ASN and routing</span><span class="item-desc">Origin ASN and prefix</span></a>
+            <a class="dropdown-item " href="/globe.html"><span class="item-title">Traffic globe</span><span class="item-desc">Routes on a 3D globe</span></a>
           </div>
         </div>
 
@@ -77,10 +75,18 @@
         </div>
       </nav>
 
-      <div class="live-status"><span id="status-dot" class="status-dot"></span><span id="live-label">Connecting</span></div>
-      <button id="theme-toggle" aria-label="Toggle theme"></button>
+      <div class="statusbar">
+        <div class="status-readout" id="capture-status" role="status" aria-live="polite">
+          <span id="status-dot" class="status-dot tone-idle"></span>
+          <span class="status-text">
+            <span class="status-state" id="live-label">Connecting</span>
+            <span class="status-detail" id="status-detail">waiting for stream</span>
+          </span>
+        </div>
+        <button id="theme-toggle" aria-label="Toggle theme"></button>
+      </div>
     </header>
-  <section class="intro compact-intro"><div><p class="eyebrow">Observed DNS intelligence</p><h1>Names behind IPs.</h1><p class="lede">Reverse-DNS names for public endpoints seen in the live capture.</p></div></section>
+  <section class="intro compact-intro"><div><p class="eyebrow">Network intel</p><h1>DNS</h1><p class="lede">Reverse-DNS names for the public endpoints seen in the capture.</p></div></section>
   <section class="metrics"><article class="metric"><span>Public IPs</span><strong id="ip-count">0</strong><small>observed in traffic</small></article><article class="metric"><span>PTR names</span><strong id="ptr-count">0</strong><small>reverse-DNS results</small></article><article class="metric"><span>Named endpoints</span><strong id="named-count">0</strong><small>with DNS names</small></article><article class="metric accent"><span>Data source</span><strong>DNS</strong><small>live resolver lookup</small></article></section>
   <section class="panel applications-panel"><div class="panel-heading"><div><p class="eyebrow">Live rollup</p><h2>Observed endpoints</h2></div><span id="dns-tag" class="panel-tag">0 IPS</span></div><div id="dns-list" class="application-list"><p class="empty">Waiting for public IPs...</p></div></section>
   <p class="geo-attribution">PTR records are live DNS results, not historical passive DNS. Private and unmapped IPs are omitted.</p>
