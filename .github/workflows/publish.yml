@@ -1,0 +1,33 @@
+name: Publish package
+
+# Publishes to GitHub Packages when a release is published. Can also be run by hand
+# from the Actions tab, which is how the first publish of an existing release is done.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com'
+
+      - run: npm ci
+
+      # tsc only; `npm start` would also try to run the server.
+      - run: ./node_modules/typescript/bin/tsc
+
+      - run: npm test
+
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

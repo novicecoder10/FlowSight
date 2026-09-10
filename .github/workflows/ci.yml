@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # The C++ parser tests are skipped without these; the suite says so when it skips.
+      - run: sudo apt-get update && sudo apt-get install -y libpcap-dev libssl-dev
+
+      - run: npm ci
+      - run: ./node_modules/typescript/bin/tsc
+      - run: npm test
+      - run: make -C cpp-sniffer
