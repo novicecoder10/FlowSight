@@ -19,9 +19,6 @@ cpp-sniffer/packet_sniffer  --stdout-->  src/index.ts  --SSE-->  public/*.js
 
 ![FlowSight overview dashboard](docs/images/dashboard.png)
 
-<sub>The overview page under `DISABLE_SNIFFER=1`. The capture badge reads idle because no
-sniffer process is attached — the packets are from the built-in synthetic generator.</sub>
-
 ## Dashboard
 
 Seventeen pages, all served statically with no build step: overview, alerts, incidents,
@@ -29,6 +26,15 @@ threat intelligence, DDoS, UEBA, VPN/proxy detection, MITRE ATT&CK coverage, com
 forensics search, application and L7 breakdowns, DNS, ASN, GeoIP and a traffic matrix,
 plus a 3D globe. Each subscribes to `/api/stream` for live packets and polls its own REST
 endpoints for the rest.
+
+| | |
+|---|---|
+| **Incident management** — alerts correlated into incidents, with an investigation workbench<br>![Incident management](docs/images/incidents.png) | **UEBA** — port scans, z-score bandwidth spikes, C2 beaconing, protocol mismatches<br>![UEBA and anomaly engine](docs/images/ueba.png) |
+| **MITRE ATT&CK** — detections mapped onto tactics and techniques<br>![MITRE ATT&CK matrix](docs/images/mitre.png) | **Sankey and traffic matrix** — source → protocol → destination, read from aggregated flows<br>![Sankey flow and traffic matrix](docs/images/matrix.png) |
+| **Forensics search** — a query language over both storage tiers, with field breakdowns and CSV/JSON export<br>![Forensics search](docs/images/forensics.png) | **Threat intelligence, DDoS, VPN, compliance, GeoIP, DNS, ASN, L7** and a live globe fill out the rest. |
+
+<sub>All screenshots are from `DISABLE_SNIFFER=1` demo mode, so the capture badge reads
+idle — the traffic is from the built-in synthetic generator, not a real interface.</sub>
 
 ## Storage tiers
 
@@ -65,6 +71,24 @@ older), so no `nvm use` step is required.
 
 The dashboard binds `127.0.0.1:5900` by default. Override with `PORT` and `HOST`.
 
+### From the published package
+
+Released versions are published to GitHub Packages. Point npm at that registry for the
+`@novicecoder10` scope and install:
+
+```sh
+echo "@novicecoder10:registry=https://npm.pkg.github.com" >> .npmrc
+npm install @novicecoder10/flowsight
+npx flowsight
+```
+
+GitHub Packages requires authentication even for public packages, so `npm login
+--registry=https://npm.pkg.github.com` (or a `NODE_AUTH_TOKEN` with `read:packages`)
+is needed first. The package ships the built server, the dashboard and the sniffer
+sources; it keeps its database in `data/` under the working directory. Building the
+sniffer for live capture still means running `make` in `cpp-sniffer/`, so cloning the
+repository is the better path if you intend to capture rather than to try the demo.
+
 ### Development without packet capture
 
 ```sh
@@ -82,7 +106,8 @@ Build the sniffer with the Makefile (the CMake recipe emits into `build/`, where
 server does not look for it):
 
 ```sh
-cd cpp-sniffer && make
+sudo apt install libpcap-dev libssl-dev
+cd cpp-sniffer && make        # produces cpp-sniffer/packet_sniffer
 ```
 
 Then grant it raw-socket capability, once per build:
@@ -96,12 +121,28 @@ capabilities, and the only symptom is
 `Couldn't activate interface any (code -8): socket: Operation not permitted`
 with an empty packet history.
 
-Start the dashboard as a normal user, never under `sudo`:
+Start the dashboard as a normal user, never under `sudo`. It spawns the sniffer itself,
+so there is no separate command to run in normal use:
 
 ```sh
 npm start
 SNIFFER_DEVICE=enp6s0 npm start    # capture one interface instead of `any`
 ```
+
+The sniffer is also a standalone program, which is the quickest way to tell a capture
+problem apart from a dashboard problem:
+
+```sh
+cd cpp-sniffer
+./packet_sniffer                   # capture on 'any', print packets to stdout
+./packet_sniffer enp6s0 | head     # one interface, first few lines
+```
+
+Each line is `[IPFIX] src_ip=…,dst_ip=…,proto=…,src_port=…,dst_port=…,meta=…,bytes=…` on
+stdout; status and errors go to stderr. If lines appear here but the dashboard stays
+empty, the problem is the server, not capture. See
+[`cpp-sniffer/README.md`](cpp-sniffer/README.md) for the build, capability and output
+details.
 
 `scripts/`  holds the runtime selector used by the `build` and `start` scripts.
 
@@ -171,4 +212,8 @@ data/               SQLite database and GeoIP data (gitignored)
 
 ## License
 
-MIT
+MIT — Copyright (c) 2026 Gautam Karat. See [LICENSE](LICENSE).
+
+The bundled GeoIP database (DB-IP City Lite, not committed) is CC BY 4.0 and is
+attributed to DB-IP separately; threat-intelligence feeds are fetched at runtime from
+their own publishers under their own terms.
